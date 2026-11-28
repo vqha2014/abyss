@@ -6686,9 +6686,11 @@ for (const sr of V79_SPEED_RESEARCH) {
   if (!RESEARCH.some(x => x.id === sr.id)) RESEARCH.push({ id: sr.id, name: sr.name, desc: sr.desc, max: sr.max });
 }
 const V79_SPD_META = Object.fromEntries(V79_SPEED_RESEARCH.map(x => [x.id, x]));
-if (CODES.RESEARCHMAX) {
-  CODES.RESEARCHMAX.again = () => RESEARCH.some(r => (prog.res.lv[r.id] || 0) < r.max);
-}
+CODES.RESEARCHMAX = {
+  text: 'Every research is at max level!',
+  again: () => prog.codes.RESEARCHMAX !== GAME_VERSION || RESEARCH.some(r => (prog.res.lv[r.id] || 0) < r.max),
+  give: () => { for (const r of RESEARCH) prog.res.lv[r.id] = r.max; prog.codes.RESEARCHMAX = GAME_VERSION; checkAch(); }
+};
 CODES.CHRONOLAB = {
   text: 'Speed research +1 level!',
   again: () => V79_SPEED_RESEARCH.some(r => (prog.res.lv[r.id] || 0) < 1),
@@ -8041,7 +8043,7 @@ function translateStrVi(s) {
   return s.replace(trimmed, out);
 }
 
-let _translatingDom = false;
+var _translatingDom = false;
 function translateDomTree(root) {
   if (_translatingDom || !root) return;
   _translatingDom = true;
@@ -8079,7 +8081,7 @@ function toggleGameLanguage() {
   translateDomTree(game);
 }
 
-function applyLangUI() {
+applyLangUI = function() {
   const isVi = curLang === 'vi';
   if ($('nameInput')) $('nameInput').placeholder = isVi ? 'Tên của bạn' : 'Your name';
   if ($('codeInput')) $('codeInput').placeholder = isVi ? 'MÃ' : 'CODE';
