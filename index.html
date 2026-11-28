@@ -241,6 +241,106 @@
   .version { color: #6b7280; white-space: nowrap; }
   .author { color: #8b93a7; text-align: right; text-shadow: 0 0 10px rgba(0, 240, 255, 0.25); }
   .author .note { display: block; font-style: italic; color: #5b6275; font-size: 0.9em; }
+
+  /* ===== v7.9 Story, Neon Dialogue, Language & Multiplayer Chat ===== */
+  .story-world-block { margin: 0.9rem 0; padding: 0.75rem; border-radius: 12px; border: 1px solid rgba(0, 240, 255, 0.28); background: rgba(10, 14, 39, 0.65); text-align: left; }
+  .story-world-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; font-weight: 900; letter-spacing: 0.12em; font-size: 0.85rem; }
+  .story-strip { display: flex; align-items: center; gap: 0.55rem; overflow-x: auto; padding: 0.45rem 0.2rem 0.6rem; scroll-behavior: smooth; }
+  .story-node { flex: 0 0 auto; min-width: 112px; padding: 0.65rem 0.55rem; border-radius: 10px; border: 2px solid rgba(255,255,255,0.18); background: rgba(5, 8, 22, 0.92); color: #dbe2f1; font-family: inherit; text-align: center; cursor: pointer; position: relative; transition: transform 0.12s ease; }
+  .story-node:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--cyan); }
+  .story-node.done { border-color: var(--green); box-shadow: 0 0 12px rgba(57, 255, 106, 0.25); }
+  .story-node.boss { border-color: var(--gold); box-shadow: 0 0 14px rgba(255, 213, 74, 0.28); }
+  .story-node:disabled { opacity: 0.42; cursor: not-allowed; }
+  .story-node b { display: block; font-size: 0.82rem; color: #fff; }
+  .story-node small { display: block; font-size: 0.66rem; color: #9aa3b8; margin-top: 0.2rem; }
+  .story-link { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; color: rgba(0, 240, 255, 0.55); font-size: 0.72rem; }
+  .story-deco { display: inline-flex; align-items: center; gap: 3px; opacity: 0.88; }
+
+  /* Neon Dialogue Box: white center, corner accents matching player skin or red for demons/bosses */
+  #neonDialogue {
+    position: absolute; left: 50%; bottom: 1.1rem; transform: translateX(-50%); z-index: 26;
+    width: min(740px, 94vw); pointer-events: auto; display: flex; flex-direction: column;
+  }
+  #neonDialogue.side-left { align-items: flex-start; }
+  #neonDialogue.side-right { align-items: flex-end; }
+  .nd-avatar-wrap {
+    width: 66px; height: 66px; border-radius: 50%; background: #070b1e;
+    border: 3px solid var(--nd-accent, #00f0ff); box-shadow: 0 0 18px var(--nd-accent, #00f0ff);
+    display: grid; place-items: center; margin-bottom: -14px; z-index: 2;
+  }
+  #neonDialogue.side-left .nd-avatar-wrap { margin-left: 18px; }
+  #neonDialogue.side-right .nd-avatar-wrap { margin-right: 18px; }
+  .nd-box {
+    width: 100%; position: relative; background: #ffffff; color: #0b1024;
+    border-radius: 14px; padding: 1.15rem 1.25rem 0.9rem;
+    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.72), 0 0 22px color-mix(in srgb, var(--nd-accent, #00f0ff) 45%, transparent);
+    border: 2px solid color-mix(in srgb, var(--nd-accent, #00f0ff) 55%, #ffffff);
+  }
+  .nd-box::before, .nd-box::after {
+    content: ""; position: absolute; width: 28px; height: 28px; pointer-events: none;
+    border-color: var(--nd-accent, #00f0ff); border-style: solid;
+    filter: drop-shadow(0 0 6px var(--nd-accent, #00f0ff));
+  }
+  .nd-box::before { top: -3px; left: -3px; border-width: 5px 0 0 5px; border-top-left-radius: 14px; }
+  .nd-box::after { bottom: -3px; right: -3px; border-width: 0 5px 5px 0; border-bottom-right-radius: 14px; }
+  .nd-hdr { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+  .nd-speaker { font-weight: 900; font-size: 0.92rem; letter-spacing: 0.08em; color: #090d1f; text-transform: uppercase; }
+  .nd-role { font-size: 0.7rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; background: #0b1024; color: #fff; }
+  .nd-text { font-size: clamp(0.84rem, 2.7vw, 0.98rem); line-height: 1.55; color: #111827; font-weight: 600; min-height: 2.6em; }
+  .nd-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.65rem; }
+  .nd-btn {
+    padding: 0.42rem 0.95rem; border-radius: 8px; border: 2px solid #0b1024;
+    background: #0b1024; color: #ffffff; font-family: inherit; font-weight: 800; font-size: 0.76rem;
+    letter-spacing: 0.08em; cursor: pointer; touch-action: manipulation;
+  }
+  .nd-btn.skip { background: transparent; color: #374151; border-color: #9ca3af; }
+
+  /* Cutscene Overlay */
+  #cutsceneOverlay {
+    position: absolute; inset: 0; z-index: 24; background: #03050f;
+    display: flex; flex-direction: column; justify-content: space-between; pointer-events: auto;
+  }
+  #cutsceneCv { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #cutsceneTop { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 1.1rem; }
+  #cutsceneTag { padding: 0.3rem 0.8rem; border-radius: 999px; background: rgba(5, 8, 22, 0.75); border: 1px solid rgba(0, 240, 255, 0.45); color: var(--cyan); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; }
+  #cutsceneSkipBtn { padding: 0.45rem 1rem; border-radius: 999px; border: 1px solid rgba(255, 213, 74, 0.75); background: rgba(5, 8, 22, 0.85); color: var(--gold); font-family: inherit; font-weight: 800; font-size: 0.78rem; letter-spacing: 0.12em; cursor: pointer; }
+
+  /* Multiplayer Chat & On-screen Virtual Keyboard */
+  #mpChatWrap {
+    position: absolute; left: calc(1rem + env(safe-area-inset-left, 0px)); top: 5.2rem; z-index: 16;
+    width: min(330px, 84vw); display: flex; flex-direction: column; gap: 0.35rem; pointer-events: auto;
+  }
+  #mpChatLog {
+    max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.28rem;
+    padding: 0.45rem 0.55rem; border-radius: 10px; background: rgba(5, 8, 22, 0.78);
+    border: 1px solid rgba(0, 240, 255, 0.32); backdrop-filter: blur(4px);
+  }
+  .chat-msg { display: flex; align-items: center; gap: 0.42rem; font-size: 0.74rem; line-height: 1.35; color: #e5ecff; word-break: break-word; }
+  .chat-orb { width: 13px; height: 13px; border-radius: 50%; flex: none; border: 1px solid rgba(255,255,255,0.7); }
+  .chat-sender { font-weight: 800; color: var(--cyan); white-space: nowrap; }
+  .chat-bar { display: flex; gap: 0.3rem; align-items: center; }
+  #mpChatInput {
+    flex: 1; min-width: 0; padding: 0.42rem 0.6rem; border-radius: 8px;
+    border: 1px solid rgba(0, 240, 255, 0.45); background: rgba(5, 8, 22, 0.88);
+    color: #fff; font-family: inherit; font-size: 13px; -webkit-user-select: text; user-select: text;
+  }
+  .chat-btn {
+    padding: 0.42rem 0.6rem; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.5);
+    background: rgba(5, 8, 22, 0.88); color: var(--cyan); font-family: inherit; font-weight: 800;
+    font-size: 0.72rem; cursor: pointer; touch-action: manipulation;
+  }
+  #virtualKb {
+    display: flex; flex-direction: column; gap: 4px; padding: 0.45rem; border-radius: 10px;
+    background: rgba(5, 8, 22, 0.94); border: 1px solid rgba(176, 38, 255, 0.55);
+  }
+  .vkb-row { display: flex; justify-content: center; gap: 3px; }
+  .vkb-key {
+    flex: 1; min-width: 22px; padding: 0.42rem 0.2rem; border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.08);
+    color: #fff; font-family: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer; touch-action: manipulation;
+  }
+  .vkb-key:active { background: rgba(0, 240, 255, 0.35); }
+
 </style>
 </head>
 <body>
@@ -417,8 +517,42 @@
     <p id="introDesc"></p>
   </div>
 
+
+  <div id="mpChatWrap" class="hidden">
+    <div id="mpChatLog"></div>
+    <div class="chat-bar">
+      <input id="mpChatInput" type="text" maxlength="80" placeholder="Chat..." autocomplete="off" spellcheck="false">
+      <button class="chat-btn" id="mpChatKbBtn" title="Virtual Keyboard">KB</button>
+      <button class="chat-btn" id="mpChatSendBtn">Send</button>
+    </div>
+    <div id="virtualKb" class="hidden"></div>
+  </div>
+
+  <div id="cutsceneOverlay" class="hidden">
+    <canvas id="cutsceneCv"></canvas>
+    <div id="cutsceneTop">
+      <span id="cutsceneTag">STORY PROLOGUE</span>
+      <button id="cutsceneSkipBtn">SKIP ▸▸</button>
+    </div>
+  </div>
+
+  <div id="neonDialogue" class="hidden side-left">
+    <div class="nd-avatar-wrap"><canvas id="ndAvatarCv" width="56" height="56"></canvas></div>
+    <div class="nd-box">
+      <div class="nd-hdr">
+        <span class="nd-speaker" id="ndSpeaker">KING</span>
+        <span class="nd-role" id="ndRole">STORY</span>
+      </div>
+      <div class="nd-text" id="ndText"></div>
+      <div class="nd-actions">
+        <button class="nd-btn skip hidden" id="ndSkipBtn">Skip</button>
+        <button class="nd-btn" id="ndNextBtn">Next ▸</button>
+      </div>
+    </div>
+  </div>
+
   <div id="footer">
-    <span class="version">Version 7.8</span>
+    <span class="version">Version 7.9</span>
     <span class="author">Author: Ha Q. Vu - A5 K36 THCS Giang Vo - Ha Noi - Viet Nam<span class="note">This is a research and experimental project, not a commercial product.</span></span>
   </div>
 </div>
@@ -1019,10 +1153,11 @@ function resTick() {
 function startResearch(id) {
   const list = resList(), r = RESEARCH.find(x => x.id === id), L = resLv(id) + 1;
   if (!r || list.length >= resSlots() || list.some(a => a.id === id) || L > r.max) return;
-  const cost = RES_COST(L);
+  const cost = V79_SPD_META[id] ? V79_SPD_META[id].cost : RES_COST(L);
+  const hrs = V79_SPD_META[id] ? V79_SPD_META[id].hours : RES_HOURS[L];
   if (stars < cost) return;
   stars -= cost; saveShop(); updateStarsUI();
-  list.push({ id, lv: L, start: Date.now(), end: Date.now() + RES_HOURS[L] * 3600000 });
+  list.push({ id, lv: L, start: Date.now(), end: Date.now() + hrs * 3600000 });
   saveProg(); renderMeta();
 }
 function applyResearch(pl, lv) {
@@ -1178,7 +1313,7 @@ const GEAR_TYPES = {
   regen: { name: 'Amulet', label: ' HP per second', base: [0, 0.3, 0.6, 1, 1.5, 2.2] }
 };
 const TIERS = [null, { name: 'Common', color: '#c9d1e3' }, { name: 'Rare', color: '#3d8bff' }, { name: 'Epic', color: '#b26bff' }, { name: 'Legendary', color: '#ff8a2a' }, { name: 'Mythic', color: '#ff3b5c' }];
-const GEAR_MAX = 15, invMax = () => 60 + (prog.bagPlus || 0);
+const GEAR_MAX = 20, invMax = () => 60 + (prog.bagPlus || 0);
 const gearSlots = () => prog.gearSlots || 3;
 const itemVal = it => GEAR_TYPES[it.type].base[it.tier] * (1 + 0.15 * it.lvl);
 const fmtVal = v => (Math.round(v * 10) / 10).toString();
@@ -1442,7 +1577,9 @@ function pgSetLevel(l) {
   if (!pg.on || !me) return;
   if (l < me.lvl) {
     const x = me.x, y = me.y;
+    const keepGroves = (me._groves || []).filter(g => !g.dead), keepTraps = (me._traps || []).filter(t => t.life > 0);
     const oid = me.id, otm = me.team; me = newPlayer(selClass); me.name = playerName || 'Player'; me.x = x; me.y = y; me.id = oid; me.team = otm;
+    me._groves = keepGroves; me._traps = keepTraps;
     applyResearch(me, pgRes()); applyGear(me, gearStats(equipped()));
     if (!coop) players = [me]; else players = players.map(q => q.id === me.id ? me : q);
     use(me);
@@ -1509,7 +1646,8 @@ function chooseMimic(tier) {
   const e0 = mimicEvt; mimicEvt = null;
   closeMeta();
   if (!e0 || e0.st !== 1) { if (state === S.PAUSED) resumeGame(); return; }
-  const type = ['elite', 'boss', 'king'][tier], q = players.find(o => !o.dead) || me;
+  const type = ['boss', 'king', 'champ'][tier] || 'boss', q = players.find(o => !o.dead) || me;
+  e0.chestX = e0.x; e0.chestY = e0.y;
   const a = Math.atan2(q.y - e0.y, q.x - e0.x), [tx, ty] = clampXY(e0.x + Math.cos(a) * 220, e0.y + Math.sin(a) * 220, 60);
   const b = spawnAt(type, e0.x, e0.y);
   b.leapT = 0.9; b.lsx = e0.x; b.lsy = e0.y; b.ltx = tx; b.lty = ty;
@@ -1536,8 +1674,12 @@ function pgAddLevels(n) {
 function pgSetClass(cls) {
   if (!pg.on || !me || !CLASSES[cls]) return;
   const lv = me.lvl, x = me.x, y = me.y;
+  const keepGroves = (me._groves || []).filter(g => !g.dead), keepTraps = (me._traps || []).filter(t => t.life > 0);
+  aiming = false;
   selClass = cls; showClasses();
   const oid = me.id, otm = me.team; me = newPlayer(cls); me.name = playerName || 'Player'; me.x = x; me.y = y; me.id = oid; me.team = otm;
+  me._groves = keepGroves; me._traps = keepTraps;
+  setSkillIcons();
   applyResearch(me, pgRes()); applyGear(me, gearStats(equipped()));
   if (!coop) players = [me]; else players = players.map(q => q.id === me.id ? me : q);
   use(me);
@@ -1581,8 +1723,10 @@ function renderPlayground(body) {
   let ww = wrap();
   WORLDS.forEach((wd, i) => chip(ww, wd.name, worldId === i, () => { if (!pg.on) pg.prevWorld = pg.prevWorld === undefined ? worldId : pg.prevWorld; setWorld(i); renderMeta(); }));
   if (coop && coop.pgm && coop.role === 'host') { sec('PVP (players can hurt each other)'); const pw = wrap(); chip(pw, coop.pvp ? 'PvP: ON' : 'PvP: OFF', !!coop.pvp, () => { pgSetPvp(!coop.pvp); toast('PvP ' + (coop.pvp ? 'ON' : 'OFF')); renderMeta(); }); }
-  sec('ACTIVE SKILLS');
-  { const cw = wrap(); chip(cw, pg.noCd !== false ? 'No cooldowns: ON' : 'No cooldowns: OFF', pg.noCd !== false, () => { pg.noCd = pg.noCd === false; savePg(); renderMeta(); }); }
+  sec('ACTIVE SKILLS & PLAYGROUND OPTIONS');
+  { const cw = wrap(); chip(cw, pg.noCd !== false ? 'No cooldowns: ON' : 'No cooldowns: OFF', pg.noCd !== false, () => { pg.noCd = pg.noCd === false; savePg(); renderMeta(); }); chip(cw, window._v79Invul ? 'Invulnerable: ON' : 'Invulnerable: OFF', !!window._v79Invul, () => { window._v79Invul = !window._v79Invul; renderMeta(); }); }
+  sec('GAME SPEED (Playground up to x2, Versus up to x1.5)');
+  { const sw = wrap(); const cap = VS() ? 1.5 : 2; for (const spv of [1, 1.25, 1.5, 1.75, 2].filter(v => v <= cap)) chip(sw, 'x' + spv, gameSpeed === spv, () => { gameSpeed = spv; $('speedBtn').textContent = 'x' + gameSpeed; renderMeta(); }); }
   sec('DEMONS');
   ww = wrap();
   chip(ww, pg.noDemons ? 'No demons: ON' : 'No demons: OFF', !!pg.noDemons, () => { pg.noDemons = !pg.noDemons; savePg(); renderMeta(); });
@@ -1718,7 +1862,8 @@ function retryStage(n) {
   bossCount = Math.floor(time / 120); nextBoss = (bossCount + 1) * 120;
   surgeCount = Math.floor(time / 300); nextSurge = (surgeCount + 1) * 300;
   champCount = Math.floor(time / 900); nextChamp = (champCount + 1) * 900;
-  const lv = Math.min(80, Math.round(1 + (n - 1) * 4.2));
+  const bonusLv = Math.max(0, (n - 1) * 2);
+  const lv = Math.min(120, Math.round(1 + (n - 1) * 4.2) + bonusLv);
   me.lvl = lv; me.pending = lv - 1; me.xp = 0; me.xpNext = xpFor(lv);
   banner = { text: 'LEVEL ' + n, sub: 'Pick your skills, then survive!', life: 2.5 };
   updateHUD(true);
@@ -1784,7 +1929,9 @@ function renderMeta() {
     const full = list.length >= resSlots();
     for (const r of RESEARCH) {
       const lv = resLv(r.id), L = lv + 1, busy = list.some(a => a.id === r.id);
-      const act = lv >= r.max ? mbtn('MAX', false) : busy ? mbtn('IN PROGRESS', false) : mbtn(RES_COST(L) + ' \u2605 \u00b7 ' + (RES_HOURS[L] >= 24 ? Math.floor(RES_HOURS[L] / 24) + 'd ' + (RES_HOURS[L] % 24 ? RES_HOURS[L] % 24 + 'h' : '') : RES_HOURS[L] + 'h'), !full && stars >= RES_COST(L), () => startResearch(r.id));
+      const rCost = V79_SPD_META[r.id] ? V79_SPD_META[r.id].cost : RES_COST(L);
+      const rHrs = V79_SPD_META[r.id] ? V79_SPD_META[r.id].hours : RES_HOURS[L];
+      const act = lv >= r.max ? mbtn('MAX', false) : busy ? mbtn('IN PROGRESS', false) : mbtn(rCost + ' \u2605 \u00b7 ' + (rHrs >= 24 ? Math.floor(rHrs / 24) + 'd ' + (rHrs % 24 ? rHrs % 24 + 'h' : '') : rHrs + 'h'), !full && stars >= rCost, () => startResearch(r.id));
       mrow(r.name + '  Lv ' + lv + '/' + r.max, r.desc, act, lv >= r.max ? 'done' : '');
     }
   } else if (metaKind === 'ach') {
@@ -1799,12 +1946,22 @@ function renderMeta() {
     const note = document.createElement('div'); note.className = 'res-active';
     note.textContent = 'The chest asks: which boss do you want to fight? Defeat it within 1 minute to win. Stronger boss, bigger reward!';
     body.appendChild(note);
-    [['Elite Demon', 20], ['Abyss Boss', 50], ['Demon King', 175]].forEach(([nm, st], i) => mrow(nm, 'Reward: ' + st + ' stars', mbtn('Fight', true, () => chooseMimic(i))));
+    [['Abyss Boss', 50], ['Demon King', 175], ['Hell Champion', 300]].forEach(([nm, st], i) => mrow(nm, 'Reward: ' + st + ' stars', mbtn('Select & Fight', true, () => chooseMimic(i))));
+  } else if (metaKind === 'mode_pick') {
+    $('metaTitle').textContent = curLang === 'vi' ? 'CHỌN CHẾ ĐỘ CHƠI' : 'SELECT MODE';
+    const act = document.createElement('div'); act.style.cssText = 'display:flex;gap:0.75rem;justify-content:center;margin:1rem 0;flex-wrap:wrap;';
+    act.appendChild(mbtn(tr('survival'), true, () => { storyMode.active = false; metaKind = 'continue'; renderMeta(); }));
+    act.appendChild(mbtn(tr('story'), true, () => { metaKind = 'story_entry'; renderMeta(); }));
+    body.appendChild(act);
+  } else if (metaKind === 'story_entry') { renderStoryEntry(body);
+  } else if (metaKind === 'story_select') { renderStorySelector(body);
+  } else if (metaKind === 'story_lb') { renderStoryLeaderboard(body);
   } else if (metaKind === 'continue') { renderContinue(body);
   } else if (metaKind === 'levels') { renderLevels(body);
   } else if (metaKind === 'playground') { renderPlayground(body);
   } else if (metaKind === 'help') {
-    $('metaTitle').textContent = 'HOW TO PLAY';
+    $('metaTitle').textContent = tr('howToPlay');
+    mrow(tr('language'), 'Switch interface & Story dialogue language / Đổi ngôn ngữ giao diện & cốt truyện', mbtn(tr('langBtn'), true, () => { curLang = curLang === 'en' ? 'vi' : 'en'; try { localStorage.setItem('abyssPlusLang', curLang); } catch (e) {} applyLangUI(); renderMeta(); }));
     const kb = (act) => { const b = mbtn(waitBind === act ? 'Press a key\u2026' : keyName(KB[act]), true, () => { waitBind = act; renderMeta(); }); return b; };
     mrow('Move', 'WASD or the arrow keys. On a phone or tablet: drag anywhere on the screen.', null);
     mrow('Attack', 'Your orb attacks by itself. Just stay alive!', null);
@@ -2343,16 +2500,16 @@ function startGame() {
   Sound.startMusic(); Sound.setTempo(116);
 }
 function pauseGame() {
-  if (!coop && !pg.on && state === S.PLAYING) saveRun();
+  if (!coop && !pg.on && (state === S.PLAYING || state === S.LEVELUP)) saveRun();
   if (coop) {
     // co-op: pause the whole team
-    if (state !== S.PLAYING || coop.over || coop.paused) return;
+    if ((state !== S.PLAYING && state !== S.LEVELUP) || coop.over || coop.paused) return;
     coop.paused = true; coop.pausedBy = me.name;
     api('/rooms/' + coop.code + '/meta', 'PATCH', { paused: true, pausedBy: me.name });
     updatePauseUI();
     return;
   }
-  if (state !== S.PLAYING) return;
+  if (state !== S.PLAYING && state !== S.LEVELUP) return;
   prevState = state; state = S.PAUSED;
   stick.active = false;
   $('pauseScreen').classList.remove('hidden');
@@ -2463,7 +2620,7 @@ const EVT_INFO = {
   elite: { title: 'EVENT: ELITE HUNT', sub: 'Defeat the golden Elite Demon within 45 s', goal: 'Defeat the Elite Demon', stars: 55 },
   chest: { title: 'EVENT: CURSED CHEST', sub: 'Walk up to the chest... if you dare!', goal: 'Open the cursed chest', stars: 50 },
   bounty: { title: 'EVENT: BOUNTY', sub: 'Defeat 50 demons within 30 s', goal: 'Bounty', stars: 45 },
-  coins: { title: 'EVENT: TREASURE HUNT', sub: 'Collect 5 golden coins within 45 s', goal: 'Collect the coins', stars: 50 },
+  coins: { title: 'EVENT: TREASURE HUNT', sub: 'Collect 5 golden coins within 45 s', goal: 'Collect the coins', stars: 20 },
   chest1: { title: 'MIMIC', sub: '', goal: 'Defeat the Elite Demon', stars: 20, hidden: true },
   chest2: { title: 'MIMIC', sub: '', goal: 'Defeat the Abyss Boss', stars: 50, hidden: true },
   chest3: { title: 'MIMIC', sub: '', goal: 'Defeat the Demon King', stars: 175, hidden: true }
@@ -2534,7 +2691,8 @@ function updateEventOne(dt) {
       if (evtNear(130)) { evt.st = 1; mimicEvt = evt; banner = { text: 'IT\u2019S A MIMIC!', sub: 'Pick the boss it spits out', life: 2 }; pauseGame(); openMeta('mimic'); }
       else if (evt.t <= 0) endEvent(null);
     } else if (evt.st === 2) {
-      if (evt.boss.dead) { evt.kind = 'chest' + (evt.tier + 1); endEvent(true); }
+      if (evt.boss && !evt.boss.dead) { evt.x = evt.boss.x; evt.y = evt.boss.y; }
+      if (evt.boss.dead) { const cx0 = evt.chestX ?? evt.x, cy0 = evt.chestY ?? evt.y; evt.kind = 'chest' + (evt.tier + 1); endEvent(true); evts.push({ kind: 'chest', x: cx0, y: cy0, st: 0, t: 999999, pr: 0, spawnT: 2 }); }
       else if (evt.t <= 0) {
         // too slow: the boss vanishes in a puff of smoke and the mimic spits gem rocks at you
         effects.push({ kind: 'puff', x: evt.boss.x, y: evt.boss.y, r: 90, life: 0.9, max: 0.9 });
@@ -2547,7 +2705,7 @@ function updateEventOne(dt) {
         const alive = players.filter(q => !q.dead);
         if (alive.length) { const q = alive[Math.floor(Math.random() * alive.length)], a = rand(0, TAU), d = rand(0, 110); hazards.push({ x: q.x + Math.cos(a) * d, y: q.y + Math.sin(a) * d, r: 45, t: 1, max: 1, met: 1, gem: rollGem(), sx: evt.x, sy: evt.y, dmg: 30 * (1 + time / 240) }); }
       }
-      if (evt.gemsLeft <= 0 && evt.t <= 0) endEvent(false);
+      if (evt.gemsLeft <= 0 && evt.t <= 0) { const cx0 = evt.chestX ?? evt.x, cy0 = evt.chestY ?? evt.y; endEvent(false); evts.push({ kind: 'chest', x: cx0, y: cy0, st: 0, t: 999999, pr: 0, spawnT: 2 }); }
     }
   } else if (evt.kind === 'coins') {
     const gcn = groupCenter(); let best = null, bd = Infinity;
@@ -2719,8 +2877,10 @@ function killEnemy(e) {
     for (let i = 0; i < 5; i++) setTimeout(() => flyStar(sx, sy), i * 120);
   } else if (kills % 15 === 0) flyStar(sx, sy);
 }
-function hurtPlayer(d, src) {
+function hurtPlayer(d, src, isAoe) {
   if (p.inv > 0 || state !== S.PLAYING || p.dead || p.choosing || p.shieldT > 0) return;
+  if (pg.on && window._v79Invul && p === me) return;
+  if (p.leapAnim && !isAoe) return;
   // Shadow Veil: dodge the hit completely
   if (p.dodge && Math.random() < 0.03 * Math.min(8, p.dodge)) { p.inv = 0.3; addText(p.x, p.y - 24, 'MISS', '#b9a4ff'); return; }
   const raw = d;
@@ -2796,7 +2956,8 @@ function pvpHit(att, q, dmg) {
   q.pvpCd = q.pvpCd || {};
   if ((q.pvpCd[att.id] || -1) > time) return;
   q.pvpCd[att.id] = time + 0.2;
-  const d = Math.max(1, dmg * (coop && coop.pgm ? 0.15 : PVP_SCALE) - q.armor) * (q.hide ? 1 - 0.05 * Math.min(8, q.hide) : 1);
+  if (pg.on && window._v79Invul && q === me) return;
+  const d = Math.max(1, dmg * (coop && coop.pgm ? 0.45 : PVP_SCALE) - q.armor) * (q.hide ? 1 - 0.05 * Math.min(8, q.hide) : 1);
   q.hp -= d;
   if (q.cls === 'druid') q.guardT = 2;
   addText(q.x, q.y - 26, '-' + Math.round(d), '#ff9de9');
@@ -2826,7 +2987,7 @@ function hunterOnHit(e, dmg) {
     }
   }
 }
-function hurtTarget(pl, d, src) { use(pl); hurtPlayer(d, src); unuse(pl); use(me); }
+function hurtTarget(pl, d, src, isAoe) { use(pl); hurtPlayer(d, src, isAoe); unuse(pl); use(me); }
 function cardOf(id) { return id === 'heal' ? HEAL_CARD : UPGRADES.find(u => u.id === id); }
 
 // ===== Level up =====
@@ -3873,10 +4034,14 @@ function drawTraps(S2) {
 function drawSpores(S2) {
   ctx.save();
   for (const q of players) {
-    if (!q.spore || q.dead || q.sporeX === undefined) continue;
-    const [x, y] = S2(q.sporeX, q.sporeY);
-    for (let i = 0; i < 6; i++) { const a = clock * 2 + i, rr = 18 + 8 * Math.sin(clock * 3 + i); ctx.fillStyle = 'rgba(120, 220, 60, 0.22)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 22, y + Math.sin(a) * 16, rr, 0, TAU); ctx.fill(); }
-    ctx.fillStyle = 'rgba(200, 255, 140, 0.5)'; for (let i = 0; i < 5; i++) { const a = clock * 4 + i * 1.3; ctx.fillRect(x + Math.cos(a) * 30 - 1.5, y + Math.sin(a * 1.3) * 22 - 1.5, 3, 3); }
+    if (!q.spore || q.dead) continue;
+    const slv = Math.min(8, q.spore || 1), cnt = slv >= 7 ? 3 : slv >= 4 ? 2 : 1, orbitR = 138 + slv * 6;
+    const pts = (q._sporeList && q._sporeList.length) ? q._sporeList : Array.from({ length: cnt }, (_, ci) => { const a = clock * 1.45 + ci * (TAU / cnt); return [q.x + Math.cos(a) * orbitR, q.y + Math.sin(a) * orbitR]; });
+    for (const [px, py] of pts) {
+      const [x, y] = S2(px, py);
+      for (let i = 0; i < 7; i++) { const a = clock * 2 + i, rr = 25 + 10 * Math.sin(clock * 3 + i); ctx.fillStyle = 'rgba(120, 220, 60, 0.25)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 28, y + Math.sin(a) * 20, rr, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = 'rgba(200, 255, 140, 0.55)'; for (let i = 0; i < 6; i++) { const a = clock * 4 + i * 1.3; ctx.fillRect(x + Math.cos(a) * 38 - 1.5, y + Math.sin(a * 1.3) * 28 - 1.5, 3, 3); }
+    }
   }
   ctx.restore();
 }
@@ -4071,7 +4236,7 @@ function updateBears(dt) {
 
 // ===== Leaderboard (world via Firebase, falls back to this device) =====
 const LB_URL = 'https://level-plus-b1948-default-rtdb.asia-southeast1.firebasedatabase.app';
-const GAME_VERSION = '7.8';
+const GAME_VERSION = '7.9';
 const pad2 = x => String(x).padStart(2, '0');
 const fmtDate = t => { if (!t) return ''; const d = new Date(t); return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()); };
 const DEVICE = (() => {
@@ -4271,6 +4436,7 @@ function enterLobby(code, role, mode) {
   $('mpTitle').textContent = mpPg || lobby.pgm ? 'Playground' : lobby.mode === 'coop' ? 'Co-op' : 'Versus';
   $('mpInfo').textContent = MP_INFO[lobby.mode === 'coop' ? 'coop' : 'vs'];
   $('roomCode').textContent = code;
+  bindMpChat(code);
   $('coopStartBtn').classList.toggle('hidden', role !== 'host');
   $('lobbyNote').textContent = role === 'host' ? 'Share this code with your friends. Press Start when everyone is in.' : 'Waiting for the host to start…';
   lobby.playersStream = stream('/rooms/' + code + '/players', data => {
@@ -4295,7 +4461,7 @@ function enterLobby(code, role, mode) {
     }
     if (!lobby) return;
     if (!m) { leaveLobby('The host closed the room.'); return; }
-    if ((m.mode || 'coop') !== lobby.mode || !!m.pgm !== !!lobby.pgm || !!m.pvp !== !!lobby.pvp) { lobby.mode = m.mode || 'coop'; lobby.pgm = !!m.pgm; lobby.pvp = !!m.pvp; renderLobbyExtras(); }
+    if ((m.mode || 'coop') !== lobby.mode || !!m.pgm !== !!lobby.pgm || !!m.pvp !== !!lobby.pvp || (m.subMode || 'survival') !== (lobby.subMode || 'survival') || (m.storyStage || 1) !== (lobby.storyStage || 1)) { lobby.mode = m.mode || 'coop'; lobby.pgm = !!m.pgm; lobby.pvp = !!m.pvp; lobby.subMode = m.subMode || 'survival'; lobby.storyStage = m.storyStage || 1; renderLobbyExtras(); }
     if (m.started && lobby.role === 'guest') startCoop('guest');
   }));
 }
@@ -4309,6 +4475,32 @@ function renderLobbyExtras() {
   if (lobby.pgm) { $('mpTitle').textContent = 'Playground'; $('mpInfo').textContent = MP_INFO.pg; }
   sp.textContent = !vs ? (lobby.pgm ? 'Mode: Playground (no rewards) \u00b7 PvP ' + (lobby.pvp ? 'ON' : 'OFF') : 'Mode: Co-op') : count <= 2 ? 'Mode: Versus · 2 players = 1 vs 1 (the host is Team A)' : 'Mode: Versus · pick your team';
   row.appendChild(sp);
+  if (!vs && !lobby.pgm) {
+    const subTag = document.createElement('span'); subTag.className = 'info'; subTag.style.margin = '0.2rem 0.5rem';
+    subTag.textContent = 'Co-op Mode: ' + ((lobby.subMode || 'survival') === 'story' ? ('Story Stage ' + (lobby.storyStage || 1)) : 'Survival');
+    row.appendChild(subTag);
+    if (lobby.role === 'host') {
+      const smBtn = document.createElement('button'); smBtn.className = 'mode-btn' + ((lobby.subMode || 'survival') === 'story' ? ' on' : '');
+      smBtn.textContent = (lobby.subMode || 'survival') === 'story' ? 'Mode: Story' : 'Mode: Survival';
+      smBtn.addEventListener('click', () => {
+        lobby.subMode = (lobby.subMode || 'survival') === 'story' ? 'survival' : 'story';
+        lobby.storyStage = lobby.storyStage || 1;
+        api('/rooms/' + lobby.code + '/meta', 'PATCH', { subMode: lobby.subMode, storyStage: lobby.storyStage });
+        renderLobbyExtras();
+      });
+      row.appendChild(smBtn);
+      if ((lobby.subMode || 'survival') === 'story') {
+        const stBtn = document.createElement('button'); stBtn.className = 'mode-btn';
+        stBtn.textContent = 'Stage ' + (lobby.storyStage || 1) + ' ▸';
+        stBtn.addEventListener('click', () => {
+          lobby.storyStage = ((lobby.storyStage || 1) % STORY_STAGES.length) + 1;
+          api('/rooms/' + lobby.code + '/meta', 'PATCH', { storyStage: lobby.storyStage });
+          renderLobbyExtras();
+        });
+        row.appendChild(stBtn);
+      }
+    }
+  }
   // the host can turn the room into a playground for everyone
   if (!vs && lobby.role === 'host' && !mpPg) {
     const b = document.createElement('button'); b.className = 'mode-btn' + (lobby.pgm ? ' on' : ''); b.textContent = lobby.pgm ? 'Playground: ON' : 'Playground: OFF';
@@ -4351,6 +4543,7 @@ function renderRoster() {
   }
 }
 async function leaveLobby(text) {
+  unbindMpChat();
   if (lobby) {
     closeStreams(lobby.streams);
     if (lobby.role === 'host') api('/rooms/' + lobby.code, 'DELETE');
@@ -4391,6 +4584,8 @@ function startCoop(role, round) {
     lastK: 0, lastBk: 0, hostT: 0, over: false, round: round || 0, retry: {}, paused: false, pausedBy: '', lastRoster: 1
   };
   coop.mode = lobby.mode || 'coop';
+  coopSubMode = lobby.subMode || 'survival';
+  coopStoryStage = lobby.storyStage || 1;
   coop.pgm = coop.mode === 'coop' && !!lobby.pgm;
   coop.pvp = coop.pgm && !!lobby.pvp;
   const teamOf = v => coop.mode === 'coop' ? 'A' : ((v && v.tm) || 'A');
@@ -4427,6 +4622,12 @@ function startCoop(role, round) {
   Sound.unlock(); Sound.resume(); Sound.sfx('level');
   Sound.startMusic(); Sound.setTempo(116);
   if (VS()) banner = { text: vsLabel().toUpperCase(), sub: 'Beat the other team. Demons attack everyone!', life: 3 };
+  if (!VS() && !coop.pgm && coopSubMode === 'story') {
+    const stObj = STORY_STAGES.find(x => x.id === coopStoryStage) || STORY_STAGES[0];
+    setWorld(stObj.world);
+    storyMode = { active: true, stageId: stObj.id, killsAtStart: 0, bossSpawned: false, bossEntity: null, completed: false, score: 0 };
+    banner = { text: stObj.title.toUpperCase(), sub: `Co-op Story · Objective: Defeat ${stObj.goalKills} demons`, life: 3 };
+  }
   // co-op playground: the host's playground settings, no rewards, nobody stays down
   if (coop.pgm) {
     pg.on = true; unlockIdx = WUNLOCK().length;
@@ -4737,6 +4938,7 @@ function coopLost(text) {
   showCoopOver(text);
 }
 function leaveCoop() {
+  unbindMpChat();
   gameSpeed = 1; $('speedBtn').textContent = 'x1';
   pg.on = false; $('pausePgBtn').classList.add('hidden'); $('pauseGearBtn').classList.add('hidden');
   if (!coop) return;
@@ -4954,7 +5156,7 @@ const refreshSolids = () => { solids = enemies.filter(e => !e.dead && ETYPES[e.t
 function blockBySolids(o, r) {
   for (const e of solids) {
     if (e === o || e.dead) continue;
-    if (e.grove && (e.owner === o || (e.own && o === me))) continue; // the druid walks through its own grove
+    if (e.grove && (e.owner === o || (e.own && o === me) || (o && o.leapAnim))) continue; // pass over groves during leap
     const dx = o.x - e.x, dy = o.y - e.y, m = e.r + r * 0.85;
     if (dx * dx + dy * dy >= m * m) continue;
     const d = Math.hypot(dx, dy) || 1;
@@ -5036,6 +5238,8 @@ function update(dt) {
   if (banner) { banner.life -= dt; if (banner.life <= 0) banner = null; }
   updateEvent(dt);
   stageTick();
+  tickStoryProgress();
+  tickV79EnemiesAndPets(dt);
   if (!coop && !pg.on) { runSaveT -= dt; if (runSaveT <= 0) { runSaveT = 5; saveRun(); } }
   // ore rocks: break them for gems
   oreT -= dt;
@@ -5302,7 +5506,7 @@ function update(dt) {
     e.kx *= 0.86; e.ky *= 0.86;
     if (e.type === 'banshee') {
       e.castT = (e.castT === undefined ? rand(1, 3) : e.castT) - dt;
-      if (e.castT <= 0 && d < 170) { e.castT = 5; effects.push({ kind: 'roar', x: e.x, y: e.y, r: 170, life: 0.6, max: 0.6 }); for (const pl of players) if (!pl.dead && (pl.x - e.x) ** 2 + (pl.y - e.y) ** 2 < 170 * 170) pl.slowT = Math.max(pl.slowT || 0, 1.2); }
+      if (e.castT <= 0 && d < 170) { e.castT = 5; effects.push({ kind: 'roar', x: e.x, y: e.y, r: 170, life: 0.6, max: 0.6 }); for (const pl of players) if (!pl.dead && (pl.x - e.x) ** 2 + (pl.y - e.y) ** 2 < 170 * 170) { pl.slowT = Math.max(pl.slowT || 0, 1.2); hurtTarget(pl, e.dmg * 0.5, e, true); } }
     }
     if (e.type === 'ghoul') e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.05 * dt);
     if (e.type === 'archer') {
@@ -5332,7 +5536,7 @@ function update(dt) {
     if (h.t <= 0) {
       h.done = true;
       effects.push({ kind: h.met ? 'metboom' : 'raze', x: h.x, y: h.y, r: h.r, life: 0.45, max: 0.45, seed: worldId });
-      for (const pl of players) if (!pl.dead && (pl.x - h.x) ** 2 + (pl.y - h.y) ** 2 < (h.r + PR * 0.4) ** 2) { hurtTarget(pl, h.dmg, null); if (h.slow) pl.slowT = 2.5; }
+      for (const pl of players) if (!pl.dead && (pl.x - h.x) ** 2 + (pl.y - h.y) ** 2 < (h.r + PR * 0.4) ** 2) { hurtTarget(pl, h.dmg, null, true); if (h.slow) pl.slowT = 2.5; }
       for (const pt of allPets) if (!pt.dead && (pt.x - h.x) ** 2 + (pt.y - h.y) ** 2 < (h.r + 10) ** 2) hurtBear(pt, h.dmg);
       Sound.sfx('boom');
     }
@@ -5364,11 +5568,26 @@ function update(dt) {
 function updateExtraSkills(dt) {
   const t = p.t, cd = (key, first, sec) => { t[key] = (t[key] === undefined ? first : t[key]) - dt; if (t[key] <= 0) { t[key] = sec; return true; } return false; };
   if (p.rapid && cd('rapid', 4, Math.max(5, 9 - 0.4 * p.rapid))) p.rapidT = 1.8 + 0.2 * Math.min(8, p.rapid);
-  // Spore Burst: a poison cloud floating around the druid
+  // Spore Burst: 1 cloud (Lv 1-3), 2 clouds (Lv 4-6), 3 clouds (Lv 7-8), wider & farther, strong slow on mobs & bosses
   if (p.spore) {
-    const a = clock * 1.3, sx = p.x + Math.cos(a) * 95, sy = p.y + Math.sin(a) * 95;
-    p.sporeX = sx; p.sporeY = sy;
-    if (cd('spore', 0.4, 0.4)) for (const e of enemiesNear(sx, sy, 85)) { damageEnemy(e, 6 + 3 * Math.min(8, p.spore), 0, 0, 0); if (!e.pvp) { e.slowT = 1; e.slowF = Math.max(e.slowF || 0, 0.3); } }
+    const slv = Math.min(8, p.spore);
+    const cnt = slv >= 7 ? 3 : slv >= 4 ? 2 : 1;
+    const orbitR = 138 + slv * 6;
+    const cloudR = 118 + slv * 6;
+    const clouds = [];
+    for (let ci = 0; ci < cnt; ci++) {
+      const a = clock * 1.45 + ci * (TAU / cnt);
+      clouds.push([p.x + Math.cos(a) * orbitR, p.y + Math.sin(a) * orbitR]);
+    }
+    p.sporeX = clouds[0][0]; p.sporeY = clouds[0][1]; p._sporeList = clouds;
+    if (cd('spore', 0.35, 0.35)) {
+      for (const [cx, cy] of clouds) {
+        for (const e of enemiesNear(cx, cy, cloudR)) {
+          damageEnemy(e, 8 + 4 * slv, 0, 0, 0);
+          if (!e.pvp) { e.slowT = 1.5; e.slowF = Math.max(e.slowF || 0, 0.58); }
+        }
+      }
+    }
   }
   if (p.blind && cd('blind', 3, Math.max(4, 7.5 - 0.45 * p.blind))) {
     effects.push({ kind: 'judge', x: p.x, y: p.y, r: 220, life: 0.45, max: 0.45, owner: p });
@@ -6044,6 +6263,8 @@ function render() {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.12)'; ctx.fillRect(x - 18, y - 28, 36, 4);
     ctx.fillStyle = '#39ff6a'; ctx.fillRect(x - 18, y - 28, 36 * Math.max(0, b.hp / b.maxHp), 4);
   }
+  // v7.9 Soul Leecher tether & Druid Charging Stags
+  drawV79Entities(S2);
   // Fallen twins
   drawGroves(S2);
   drawTraps(S2);
@@ -6122,6 +6343,7 @@ function render() {
     if (me.stunT > 0) { ctx.fillStyle = '#ffd54a'; for (let i = 0; i < 3; i++) { const a = clock * 6 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 18, y - PR - 10 + Math.sin(a) * 5, 3, 0, TAU); ctx.fill(); } }
     if (me.slowT > 0) { ctx.strokeStyle = 'rgba(160, 220, 255, 0.85)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, PR + 7, 0, TAU); ctx.stroke(); }
     if (p.cls === 'fallen') drawFallenLook(x, y, me, 1, false);
+    if (pg.on && window._v79Invul) { ctx.save(); ctx.globalAlpha = 0.35 + 0.65 * Math.abs(Math.sin(clock * 11)); ctx.strokeStyle = '#00f0ff'; ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 16; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.arc(x, y, PR + 16, clock * 3.5, clock * 3.5 + TAU * 0.85); ctx.stroke(); ctx.restore(); }
     if (me.falcon) drawFalcon(x, y);
     drawOrb(ctx, x, y, PR, skinCol());
     ctx.globalAlpha = 1;
@@ -6331,13 +6553,13 @@ window.addEventListener('keydown', e => {
     if ((state === S.START || state === S.OVER) && $('coopScreen').classList.contains('hidden') && !coop) { e.preventDefault(); startGame(); }
     else if (state === S.PAUSED) { e.preventDefault(); resumeGame(); }
   } else if (e.code === KB.pause || e.code === 'Escape') {
-    if (state === S.PAUSED) resumeGame(); else pauseGame();
+    if (state === S.PAUSED) resumeGame(); else if (state === S.PLAYING || state === S.LEVELUP) pauseGame();
   } else if (e.code === KB.sound) toggleSound();
 });
 window.addEventListener('keyup', e => { if (KEYMAP[e.code]) keys[KEYMAP[e.code]] = false; });
 window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 
-$('startBtn').addEventListener('click', () => openMeta('continue'));
+$('startBtn').addEventListener('click', () => openMeta('mode_pick'));
 window.addEventListener('pagehide', () => { if (!coop && !pg.on && me && (state === S.PLAYING || state === S.PAUSED || state === S.LEVELUP)) saveRun(); });
 $('coopBtn').addEventListener('click', openCoop);
 $('createBtn').addEventListener('click', createRoom);
@@ -6362,7 +6584,7 @@ $('againBtn').addEventListener('click', startGame);
 $('classBtn').addEventListener('click', backToStart);
 $('pauseBtn').addEventListener('click', pauseGame);
 $('adReviveBtn').addEventListener('click', () => { if (hasAds()) window.cgRewarded(reviveRun); });
-$('speedBtn').addEventListener('click', () => { gameSpeed = gameSpeed === 1 ? 1.25 : gameSpeed === 1.25 ? 1.5 : 1; $('speedBtn').textContent = 'x' + gameSpeed; });
+$('speedBtn').addEventListener('click', () => { const list = v79AllowedSpeeds(); const i = list.indexOf(gameSpeed); gameSpeed = list[(i + 1) % list.length] || 1; $('speedBtn').textContent = 'x' + gameSpeed; });
 $('resumeBtn').addEventListener('click', resumeGame);
 $('soundBtn').addEventListener('click', toggleSound);
 $('shopBtn').addEventListener('click', openShop);
@@ -6410,6 +6632,725 @@ showBoard(true);
 updateSoundBtn(); updateStarsUI();
 resTick(); checkAch(); refreshMetaUI();
 requestAnimationFrame(t => { lastTime = t; loop(t); });
+
+// ============================================================================
+// VERSION 7.9 EXPANSION MODULE
+// ============================================================================
+
+// 1. NEW WORLD 9 + METEOR 9
+if (WORLDS.length < 9) {
+  WORLDS.push({
+    name: 'Astral Sanctum',
+    liq: { style: 'holy', fill: 'rgba(130, 80, 255, 0.52)', edge: 'rgba(125, 249, 255, 0.92)', slow: 0.55, dmg: 0.08, pull: 35 },
+    mul: 16.5, star: 8, bg: '#070416', grid: 'rgba(125, 249, 255, 0.07)', vig: 'rgba(25, 5, 60, 0.6)',
+    crys: ['#7df9ff', 'rgba(55, 25, 140, 0.82)', '#e0fbff', 'rgba(255, 213, 74, 0.65)', 'rgba(255, 79, 216, 0.8)'],
+    pil: ['#7df9ff', 'rgba(18, 10, 42, 0.95)', 'rgba(125, 249, 255, 0.45)', 'rgba(255, 213, 74, 0.45)'],
+    pool: ['rgba(125, 249, 255, 0.18)', 'rgba(176, 38, 255, 0.08)', 'rgba(176, 38, 255, 0)'],
+    rune: 'rgba(125, 249, 255, 0.28)', grass: 'rgba(180, 140, 255, 0.34)', shard: ['rgba(125, 249, 255, 0.35)', 'rgba(255, 255, 255, 0.65)']
+  });
+}
+if (METEOR.length < 9) {
+  METEOR.push({ c: '#7df9ff', core: '#fff5b8', hurt: 5.0, slow: 1 });
+}
+
+// 2. RESEARCH SPEED UNLOCKS (4 days, 5 days, 6 days, 7 days) + CODE +1 LEVEL
+const V79_SPEED_RESEARCH = [
+  { id: 'r_spd_125', name: 'Chrono Flux I', desc: 'Unlock x1.25 game speed (4 days)', max: 1, hours: 96, cost: 250, mul: 1.25 },
+  { id: 'r_spd_150', name: 'Chrono Flux II', desc: 'Unlock x1.5 game speed (5 days)', max: 1, hours: 120, cost: 400, mul: 1.5 },
+  { id: 'r_spd_175', name: 'Chrono Flux III', desc: 'Unlock x1.75 game speed (6 days)', max: 1, hours: 144, cost: 600, mul: 1.75 },
+  { id: 'r_spd_200', name: 'Chrono Flux IV', desc: 'Unlock x2 game speed (7 days)', max: 1, hours: 168, cost: 900, mul: 2.0 }
+];
+for (const sr of V79_SPEED_RESEARCH) {
+  if (!RESEARCH.some(x => x.id === sr.id)) RESEARCH.push({ id: sr.id, name: sr.name, desc: sr.desc, max: sr.max });
+}
+const V79_SPD_META = Object.fromEntries(V79_SPEED_RESEARCH.map(x => [x.id, x]));
+if (CODES.RESEARCHMAX) {
+  CODES.RESEARCHMAX.again = () => RESEARCH.some(r => (prog.res.lv[r.id] || 0) < r.max);
+}
+CODES.CHRONOLAB = {
+  text: 'Speed research +1 level!',
+  again: () => V79_SPEED_RESEARCH.some(r => (prog.res.lv[r.id] || 0) < 1),
+  give: () => {
+    for (const sr of V79_SPEED_RESEARCH) {
+      if ((prog.res.lv[sr.id] || 0) < 1) { prog.res.lv[sr.id] = 1; break; }
+    }
+    checkAch();
+  }
+};
+
+function v79AllowedSpeeds() {
+  if (pg.on) {
+    const cap = VS() ? 1.5 : 2;
+    return [1, 1.25, 1.5, 1.75, 2].filter(v => v <= cap);
+  }
+  const base = [1];
+  if (resLv('r_spd_125') > 0) base.push(1.25);
+  if (resLv('r_spd_150') > 0) base.push(1.5);
+  if (resLv('r_spd_175') > 0) base.push(1.75);
+  if (resLv('r_spd_200') > 0) base.push(2);
+  if (VS()) return base.filter(v => v <= 1.5);
+  return base;
+}
+
+// 3. BALANCE: BUFF ONLY (NO NERF), PALADIN LOWEST DMG, DRUID SLIGHTLY HIGHER
+CLASS_DMG.hunter = Math.max(CLASS_DMG.hunter, 2.75);
+CLASS_DMG.warrior = Math.max(CLASS_DMG.warrior, 14.2);
+CLASS_DMG.fallen = Math.max(CLASS_DMG.fallen, 10.6);
+CLASS_DMG.paladin = Math.max(CLASS_DMG.paladin, 1.45);
+CLASS_DMG.druid = Math.max(CLASS_DMG.druid, 1.75);
+
+// 4. NEW ENEMIES:
+// - leecher: Soul Leecher (stands still, range = 50% of wisp 430*0.5 = 215, tethers 1 player with 5s countdown, breaks if far, instant kill at 5s)
+// - herald: Aura Herald (moves & buffs HP/DMG/Speed of nearby demons & bosses like Demon Totem)
+// - Story-exclusive enemies: void_warden, abyss_knight, astral_sentinel
+Object.assign(ETYPES, {
+  leecher: { r: 16, hp: 135, speed: 0, dmg: 0, xp: 10, color: '#ff2ad4', spikes: 6, still: true, leecher: true },
+  herald: { r: 18, hp: 220, speed: 66, dmg: 14, xp: 14, color: '#ff9d2e', spikes: 8, herald: true },
+  void_warden: { r: 22, hp: 380, speed: 76, dmg: 22, xp: 18, color: '#9d6bff', spikes: 9 },
+  abyss_knight: { r: 25, hp: 520, speed: 84, dmg: 28, xp: 24, color: '#ff3b5c', spikes: 10 },
+  astral_sentinel: { r: 28, hp: 740, speed: 70, dmg: 34, xp: 32, color: '#7df9ff', spikes: 12 }
+});
+for (const k of ['leecher', 'herald', 'void_warden', 'abyss_knight', 'astral_sentinel']) {
+  if (!TYPE_IDX.includes(k)) TYPE_IDX.push(k);
+}
+Object.assign(INTRO, {
+  leecher: ['Soul Leecher', 'Stands still and tethers a soul beam within 50% of Wisp range. Escape the tether or kill it within 5s, or die instantly!'],
+  herald: ['Abyss Herald', 'Moves with the horde and empowers nearby demons and bosses with extra HP, damage, and speed!'],
+  void_warden: ['Void Warden', 'Story guardian twisted by the rift.'],
+  abyss_knight: ['Abyss Knight', 'Armored vanguard of the Demon King.'],
+  astral_sentinel: ['Astral Sentinel', 'Celestial construct corrupted in the final sanctum.']
+});
+UNLOCK.push(['leecher', 310], ['herald', 410]);
+Object.assign(TYPE_WEIGHT, { leecher: 1.4, herald: 1.5, void_warden: 1.2, abyss_knight: 1.0, astral_sentinel: 0.9 });
+PG_TYPES.push('leecher', 'herald', 'void_warden', 'abyss_knight', 'astral_sentinel');
+Object.assign(PG_NAMES, {
+  leecher: 'Soul Leecher', herald: 'Abyss Herald',
+  void_warden: 'Void Warden', abyss_knight: 'Abyss Knight', astral_sentinel: 'Astral Sentinel'
+});
+buildSprites();
+
+// 5. NEW SKILLS FOR ALL 5 CLASSES (including Druid Charging Stag + count + stun duration)
+const V79_NEW_SKILLS = [
+  { id: 'd_stag', cls: 'druid', name: 'Charging Stag', max: 8, desc: 'Summons a spirit stag that charges demons and bosses, dealing light damage and stunning them (boss stun scales down with boss toughness). Weaker HP than bear.', apply: p => { p.stags = Math.max(1, (p.stags || 0) + (p.stags ? 0 : 1)); p.stagLv = (p.stagLv || 0) + 1; } },
+  { id: 'd_stag_herd', cls: 'druid', name: 'Stampede Herd', max: 4, desc: 'Summons +1 Charging Stag per level.', req: p => (p.stagLv || 0) > 0, apply: p => { p.stags = (p.stags || 1) + 1; } },
+  { id: 'd_stag_stun', cls: 'druid', name: 'Antler Impact', max: 6, desc: 'Charging Stags stun demons and bosses +25% longer per level.', req: p => (p.stagLv || 0) > 0, apply: p => { p.stagStun = (p.stagStun || 0) + 1; } },
+  { id: 'h_ricochet', cls: 'hunter', name: 'Starlight Ricochet', max: 8, desc: 'Every 4th shot launches a seeking star arrow that bounces between 3 nearby targets.', apply: p => { p.ricochet = (p.ricochet || 0) + 1; } },
+  { id: 'w_seismic_wave', cls: 'warrior', name: 'Crimson Shockwave', max: 8, desc: 'Every 3rd cleave sends a blazing wave forward that burns and knocks back enemies.', apply: p => { p.crimsonWave = (p.crimsonWave || 0) + 1; } },
+  { id: 'p_radiant_link', cls: 'paladin', name: 'Radiant Beacon', max: 8, desc: 'Links holy light to the nearest ally, boosting both players armor by +2 and healing 1% HP/s.', apply: p => { p.radLink = (p.radLink || 0) + 1; } },
+  { id: 'f_reaper_scythe', cls: 'fallen', name: 'Soul Scythe', max: 8, desc: 'Every 5th slash unleashes a spinning void scythe that orbits you briefly and shreds foes.', apply: p => { p.soulScythe = (p.soulScythe || 0) + 1; } }
+];
+for (const sk of V79_NEW_SKILLS) {
+  if (!UPGRADES.some(u => u.id === sk.id)) UPGRADES.push(sk);
+}
+
+// 6. STORY MODE, NEON DIALOGUE, CUTSCENE & MULTIPLAYER CHAT STATE
+const STORY_KEY = 'abyssPlusStoryV79';
+let storyProg = { unlocked: 1, cleared: {}, bestScore: {} };
+try {
+  const sp = JSON.parse(localStorage.getItem(STORY_KEY) || 'null');
+  if (sp && typeof sp === 'object') storyProg = Object.assign(storyProg, sp);
+} catch (e) {}
+function saveStoryProg() { try { localStorage.setItem(STORY_KEY, JSON.stringify(storyProg)); } catch (e) {} }
+
+const STORY_STAGES = [];
+const STORY_ENEMY_POOL = [
+  ['imp', 'runner', 'charger'],
+  ['runner', 'charger', 'wisp', 'ghoul'],
+  ['brute', 'splitter', 'leecher', 'archer'],
+  ['necro', 'golem', 'herald', 'warlock'],
+  ['shade', 'void_warden', 'leecher', 'banshee'],
+  ['titan', 'abyss_knight', 'herald', 'scorpion'],
+  ['void_warden', 'abyss_knight', 'leecher', 'herald'],
+  ['abyss_knight', 'astral_sentinel', 'herald', 'warlock'],
+  ['astral_sentinel', 'abyss_knight', 'leecher', 'herald']
+];
+for (let w = 0; w < 9; w++) {
+  for (let s = 1; s <= 4; s++) {
+    const id = w * 4 + s;
+    const isWorldBoss = s === 4;
+    const bossType = w === 0 && s === 4 ? 'king' : (w === 8 && s === 4 ? 'champ' : (isWorldBoss ? 'boss' : null));
+    STORY_STAGES.push({
+      id,
+      world: w,
+      stageInWorld: s,
+      title: `${WORLDS[w].name} ${w + 1}-${s}`,
+      goalKills: 35 + id * 12,
+      bossType,
+      pool: STORY_ENEMY_POOL[w] || ['imp', 'runner']
+    });
+  }
+}
+
+let storyMode = { active: false, stageId: 1, killsAtStart: 0, bossSpawned: false, bossEntity: null, completed: false, score: 0, savedRun: null };
+let storyLeaderboard = [];
+try { storyLeaderboard = JSON.parse(localStorage.getItem('abyssPlusStoryLB') || '[]') || []; } catch (e) {}
+let coopSubMode = 'survival'; // 'survival' | 'story'
+let coopStoryStage = 1;
+
+// 7. LANGUAGE TOGGLE (ENGLISH / TIẾNG VIỆT)
+let curLang = 'en';
+try { curLang = localStorage.getItem('abyssPlusLang') || 'en'; } catch (e) {}
+const I18N = {
+  en: {
+    start: 'Start', survival: 'Survival', story: 'Story', multiplayer: 'Multiplayer',
+    continueGame: 'Continue', newGame: 'New Game', selectStage: 'SELECT STORY STAGE',
+    howToPlay: 'HOW TO PLAY', language: 'Language', langBtn: 'English / Tiếng Việt (EN)',
+    chatPlaceholder: 'Type message...', send: 'Send', skip: 'Skip', next: 'Next ▸'
+  },
+  vi: {
+    start: 'Bắt đầu', survival: 'Sinh tồn', story: 'Cốt truyện', multiplayer: 'Chơi mạng',
+    continueGame: 'Tiếp tục', newGame: 'Chơi mới', selectStage: 'CHỌN MÀN CỐT TRUYỆN',
+    howToPlay: 'HƯỚNG DẪN CHƠI', language: 'Ngôn ngữ', langBtn: 'English / Tiếng Việt (VI)',
+    chatPlaceholder: 'Nhập tin nhắn...', send: 'Gửi', skip: 'Bỏ qua', next: 'Tiếp ▸'
+  }
+};
+const tr = k => (I18N[curLang] && I18N[curLang][k]) || I18N.en[k] || k;
+function applyLangUI() {
+  if ($('startBtn')) $('startBtn').textContent = tr('start');
+  if ($('coopBtn')) $('coopBtn').textContent = tr('multiplayer');
+  if ($('mpChatInput')) $('mpChatInput').placeholder = tr('chatPlaceholder');
+  if ($('mpChatSendBtn')) $('mpChatSendBtn').textContent = tr('send');
+  if ($('cutsceneSkipBtn')) $('cutsceneSkipBtn').textContent = tr('skip') + ' ▸▸';
+}
+
+// 8. NEON DIALOGUE & CUTSCENE SYSTEM
+let dialogueQueue = [], dialogueOnDone = null, dialogueIdx = 0;
+function drawDialogueAvatar(speakerType, accent) {
+  const cvA = $('ndAvatarCv');
+  if (!cvA) return;
+  const g = cvA.getContext('2d');
+  g.clearRect(0, 0, 56, 56);
+  g.save();
+  g.translate(28, 28);
+  if (speakerType === 'player') {
+    const col = skinCol();
+    drawOrb(g, 0, 0, 15, col);
+  } else if (speakerType === 'king_npc') {
+    drawOrb(g, 0, 3, 14, { main: '#ffd54a', light: '#fff7c2', dark: '#b37700' });
+    g.fillStyle = '#ffd54a'; g.strokeStyle = '#ffffff'; g.lineWidth = 1.2;
+    g.beginPath(); g.moveTo(-10, -10); g.lineTo(-7, -19); g.lineTo(0, -13); g.lineTo(7, -19); g.lineTo(10, -10); g.closePath();
+    g.fill(); g.stroke();
+  } else if (speakerType === 'demon_king' && sprites.king) {
+    const sp = sprites.king, k = 46 / sp.size;
+    g.drawImage(sp.c, -sp.size * k / 2, -sp.size * k / 2, sp.size * k, sp.size * k);
+  } else if (speakerType === 'champ' && sprites.champ) {
+    const sp = sprites.champ, k = 46 / sp.size;
+    g.drawImage(sp.c, -sp.size * k / 2, -sp.size * k / 2, sp.size * k, sp.size * k);
+  } else {
+    drawOrb(g, 0, 0, 14, { main: accent || '#ff3b5c', light: '#ffc2d1', dark: '#7a0018' });
+  }
+  g.restore();
+}
+
+function showNeonDialogue(lines, onDone, allowSkip = true) {
+  dialogueQueue = lines || [];
+  dialogueIdx = 0;
+  dialogueOnDone = onDone || null;
+  if (!dialogueQueue.length) { if (dialogueOnDone) dialogueOnDone(); return; }
+  $('ndSkipBtn').classList.toggle('hidden', !allowSkip);
+  $('ndSkipBtn').textContent = tr('skip');
+  $('ndNextBtn').textContent = tr('next');
+  renderDialogueStep();
+  $('neonDialogue').classList.remove('hidden');
+  if (coop && coop.role === 'host') {
+    api('/rooms/' + coop.code + '/meta', 'PATCH', { dialogue: { lines: dialogueQueue, idx: 0, active: true } });
+  }
+}
+
+function renderDialogueStep() {
+  const item = dialogueQueue[dialogueIdx];
+  if (!item) { closeNeonDialogue(); return; }
+  const box = $('neonDialogue');
+  const isRight = item.side === 'right';
+  box.classList.toggle('side-left', !isRight);
+  box.classList.toggle('side-right', isRight);
+  const accent = item.type === 'player' ? (skinCol().main || '#00f0ff') : (item.accent || '#ff3b5c');
+  box.style.setProperty('--nd-accent', accent);
+  $('ndSpeaker').textContent = item.speaker || 'HERO';
+  $('ndRole').textContent = item.role || (item.type === 'player' ? CLASSES[selClass].name.toUpperCase() : 'STORY');
+  $('ndRole').style.background = item.type === 'player' ? '#0b1024' : '#991b1b';
+  $('ndText').textContent = curLang === 'vi' && item.vi ? item.vi : item.en;
+  drawDialogueAvatar(item.type, accent);
+}
+
+function closeNeonDialogue() {
+  $('neonDialogue').classList.add('hidden');
+  if (coop && coop.role === 'host') {
+    api('/rooms/' + coop.code + '/meta', 'PATCH', { dialogue: { active: false } });
+  }
+  const cb = dialogueOnDone;
+  dialogueQueue = []; dialogueOnDone = null;
+  if (cb) cb();
+}
+$('ndNextBtn').addEventListener('click', () => {
+  if (coop && coop.role === 'guest') return; // host controls story dialogue in co-op
+  dialogueIdx++;
+  if (dialogueIdx >= dialogueQueue.length) closeNeonDialogue();
+  else {
+    renderDialogueStep();
+    if (coop && coop.role === 'host') {
+      api('/rooms/' + coop.code + '/meta', 'PATCH', { dialogue: { lines: dialogueQueue, idx: dialogueIdx, active: true } });
+    }
+  }
+});
+$('ndSkipBtn').addEventListener('click', () => {
+  if (coop && coop.role === 'guest') return;
+  closeNeonDialogue();
+});
+
+// Opening Prologue Cutscene
+let cutsceneAnim = 0, cutsceneActive = false, cutsceneCb = null;
+function playStoryPrologue(onFinish) {
+  cutsceneActive = true;
+  cutsceneCb = onFinish;
+  const ov = $('cutsceneOverlay'), cvC = $('cutsceneCv'), g = cvC.getContext('2d');
+  ov.classList.remove('hidden');
+  let t0 = performance.now();
+  function frame(now) {
+    if (!cutsceneActive) return;
+    const t = (now - t0) / 1000;
+    cvC.width = game.clientWidth * dpr;
+    cvC.height = game.clientHeight * dpr;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cw = game.clientWidth, ch = game.clientHeight;
+    const shakeX = t > 2.2 && t < 7.5 ? (Math.random() - 0.5) * 14 : 0;
+    const shakeY = t > 2.2 && t < 7.5 ? (Math.random() - 0.5) * 14 : 0;
+    g.save();
+    g.translate(shakeX, shakeY);
+    const grad = g.createLinearGradient(0, 0, 0, ch);
+    grad.addColorStop(0, t < 3 ? '#07142c' : '#140414');
+    grad.addColorStop(1, '#04060f');
+    g.fillStyle = grad; g.fillRect(0, 0, cw, ch);
+    for (let i = 0; i < 14; i++) {
+      const bw = cw / 14, bx = i * bw + 4, bh = 80 + ((i * 53) % 130);
+      g.fillStyle = t < 3 ? '#0d2244' : '#190a1e';
+      g.fillRect(bx, ch * 0.68 - bh, bw - 8, bh);
+      g.strokeStyle = t < 3 ? 'rgba(0,240,255,0.45)' : 'rgba(255,59,92,0.45)';
+      g.strokeRect(bx, ch * 0.68 - bh, bw - 8, bh);
+    }
+    if (t >= 2.5) {
+      const rt = t - 2.5;
+      const rx = cw * 0.5, ry = ch * 0.34;
+      const waveColors = ['#39ff6a', '#ff3b5c', '#050508'];
+      for (let wi = 0; wi < 6; wi++) {
+        const rad = ((rt * 190 + wi * 65) % 460);
+        g.strokeStyle = waveColors[wi % 3];
+        g.lineWidth = 6 - (wi % 3);
+        g.beginPath(); g.arc(rx, ry, rad, 0, TAU); g.stroke();
+      }
+      g.fillStyle = '#030108'; g.strokeStyle = '#ff3b5c'; g.lineWidth = 4;
+      g.beginPath(); g.ellipse(rx, ry, 28 + Math.min(45, rt * 18), 75 + Math.min(60, rt * 22), 0.15, 0, TAU); g.fill(); g.stroke();
+      if (rt > 1.6 && sprites.king) {
+        const sp = sprites.king;
+        g.drawImage(sp.c, rx - sp.size * 0.65, ry - sp.size * 0.65, sp.size * 1.3, sp.size * 1.3);
+        g.font = '900 32px ui-monospace, Menlo, monospace';
+        g.textAlign = 'center'; g.fillStyle = '#ff3b5c'; g.shadowColor = '#ff3b5c'; g.shadowBlur = 18;
+        g.fillText('ATTACK!!', rx, ry - 95);
+        g.shadowBlur = 0;
+      }
+    }
+    g.restore();
+    if (t < 7.2) cutsceneAnim = requestAnimationFrame(frame);
+    else finishStoryPrologue();
+  }
+  cutsceneAnim = requestAnimationFrame(frame);
+}
+
+function finishStoryPrologue() {
+  if (!cutsceneActive) return;
+  cutsceneActive = false;
+  cancelAnimationFrame(cutsceneAnim);
+  $('cutsceneOverlay').classList.add('hidden');
+  const cb = cutsceneCb; cutsceneCb = null;
+  showNeonDialogue([
+    { side: 'right', type: 'demon_king', speaker: 'DEMON KING', role: 'INVADER', accent: '#ff3b5c', en: 'ATTACK!! Tear their citadel apart and drown this realm in darkness!', vi: 'TẤN CÔNG!! Xé nát thành trì của chúng và nhấn chìm vương quốc này trong bóng tối!' },
+    { side: 'left', type: 'king_npc', speaker: 'HIGH KING', role: 'ROYALTY', accent: '#ffd54a', en: 'Brave Neon Guardian! The Abyss Rift has opened. Drive back the demon legion and defeat the Demon King!', vi: 'Chiến binh Neon dũng cảm! Vết nứt Vực Thẳm đã mở. Hãy đẩy lùi binh đoàn quỷ và tiêu diệt Demon King!' },
+    { side: 'left', type: 'player', speaker: playerName || 'GUARDIAN', role: CLASSES[selClass].name.toUpperCase(), en: 'I will protect the kingdom and seal the rift!', vi: 'Tôi sẽ bảo vệ vương quốc và phong ấn vết nứt!' }
+  ], cb, true);
+}
+$('cutsceneSkipBtn').addEventListener('click', finishStoryPrologue);
+
+// 9. STORY MENU (Continue / New Game) & HORIZONTAL STAGE SELECTOR PER WORLD
+function renderStoryEntry(body) {
+  $('metaTitle').textContent = tr('story').toUpperCase();
+  const hasSave = !!(storyProg.savedStage && storyProg.savedStage >= 1);
+  if (hasSave) {
+    const st = STORY_STAGES.find(x => x.id === storyProg.savedStage) || STORY_STAGES[0];
+    mrow(curLang === 'vi' ? 'Tiến độ cốt truyện đã lưu' : 'Saved Story Progress', `${st.title} · ${CLASSES[storyProg.savedCls || selClass].name}`, null);
+  }
+  const act = document.createElement('div');
+  act.style.cssText = 'display:flex;gap:0.65rem;justify-content:center;margin:0.9rem 0;flex-wrap:wrap;';
+  act.appendChild(mbtn(tr('continueGame'), hasSave, () => {
+    closeMeta();
+    launchStoryStage(storyProg.savedStage || 1, false);
+  }));
+  act.appendChild(mbtn(tr('newGame'), true, () => {
+    metaKind = 'story_select';
+    renderMeta();
+  }));
+  act.appendChild(mbtn(curLang === 'vi' ? 'BXH Cốt truyện' : 'Story Leaderboard', true, () => {
+    metaKind = 'story_lb';
+    renderMeta();
+  }));
+  body.appendChild(act);
+}
+
+function renderStorySelector(body) {
+  $('metaTitle').textContent = tr('selectStage');
+  const top = document.createElement('div');
+  top.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;gap:0.5rem;';
+  const sub = document.createElement('span');
+  sub.style.cssText = 'font-size:0.78rem;color:#9aa3b8;';
+  sub.textContent = curLang === 'vi' ? 'Chọn màn theo chiều ngang trong từng thế giới (không chọn thế giới trước).' : 'Pick a stage horizontally per world to start Story mode.';
+  const backBtn = mbtn('◂ Back', true, () => { metaKind = 'story_entry'; renderMeta(); });
+  top.append(sub, backBtn);
+  body.appendChild(top);
+
+  WORLDS.forEach((wObj, wIdx) => {
+    const blk = document.createElement('div');
+    blk.className = 'story-world-block';
+    blk.style.borderColor = wObj.crys[0];
+    const hdr = document.createElement('div');
+    hdr.className = 'story-world-hdr';
+    hdr.style.color = wObj.crys[2];
+    hdr.innerHTML = `<span>WORLD ${wIdx + 1}: ${wObj.name.toUpperCase()}</span><span class="story-deco">🌲💎🪨 ${wObj.liq.style.toUpperCase()}</span>`;
+    blk.appendChild(hdr);
+
+    const strip = document.createElement('div');
+    strip.className = 'story-strip';
+    const stages = STORY_STAGES.filter(st => st.world === wIdx);
+    stages.forEach((st, idx) => {
+      if (idx > 0) {
+        const link = document.createElement('span');
+        link.className = 'story-link';
+        link.textContent = '─🌲🪨─▸';
+        strip.appendChild(link);
+      }
+      const unlocked = st.id <= (storyProg.unlocked || 1);
+      const cleared = !!storyProg.cleared[st.id];
+      const node = document.createElement('button');
+      node.className = 'story-node' + (cleared ? ' done' : '') + (st.bossType ? ' boss' : '');
+      node.disabled = !unlocked;
+      node.innerHTML = `<b>${wIdx + 1}-${st.stageInWorld}</b><small>${st.bossType ? 'BOSS: ' + st.bossType.toUpperCase() : (curLang === 'vi' ? 'Hạ ' : 'Defeat ') + st.goalKills}</small>`;
+      node.addEventListener('click', () => {
+        closeMeta();
+        launchStoryStage(st.id, st.id === 1 && !storyProg.seenPrologue);
+      });
+      strip.appendChild(node);
+    });
+    blk.appendChild(strip);
+    body.appendChild(blk);
+  });
+}
+
+function renderStoryLeaderboard(body) {
+  $('metaTitle').textContent = curLang === 'vi' ? 'BẢNG XẾP HẠNG CỐT TRUYỆN' : 'STORY LEADERBOARD';
+  const rows = storyLeaderboard.slice().sort((a, b) => b.score - a.score).slice(0, 10);
+  if (!rows.length) {
+    mrow(curLang === 'vi' ? 'Chưa có kỷ lục' : 'No Story records yet', curLang === 'vi' ? 'Hoàn thành các màn cốt truyện để ghi danh!' : 'Clear Story stages to record your score!', null);
+  } else {
+    rows.forEach((r, i) => {
+      mrow(`#${i + 1} ${r.name} · Stage ${r.stage}`, `${CLASSES[r.cls] ? CLASSES[r.cls].name : r.cls} · Score: ${r.score}`, null);
+    });
+  }
+  const back = document.createElement('div');
+  back.style.cssText = 'text-align:center;margin-top:0.8rem;';
+  back.appendChild(mbtn('◂ Back', true, () => { metaKind = 'story_entry'; renderMeta(); }));
+  body.appendChild(back);
+}
+
+function launchStoryStage(stageId, withPrologue) {
+  const st = STORY_STAGES.find(x => x.id === stageId) || STORY_STAGES[0];
+  storyProg.savedStage = st.id;
+  storyProg.savedCls = selClass;
+  saveStoryProg();
+  const begin = () => {
+    setWorld(st.world);
+    startGame();
+    storyMode = { active: true, stageId: st.id, killsAtStart: 0, bossSpawned: false, bossEntity: null, completed: false, score: 0 };
+    banner = { text: st.title.toUpperCase(), sub: curLang === 'vi' ? `Mục tiêu: Tiêu diệt ${st.goalKills} quái` : `Objective: Defeat ${st.goalKills} demons`, life: 3 };
+  };
+  if (withPrologue) {
+    storyProg.seenPrologue = true;
+    saveStoryProg();
+    playStoryPrologue(begin);
+  } else {
+    begin();
+  }
+}
+
+function tickStoryProgress() {
+  if (!storyMode.active || storyMode.completed || !me || me.dead) return;
+  const st = STORY_STAGES.find(x => x.id === storyMode.stageId);
+  if (!st) return;
+  const stageKills = kills - storyMode.killsAtStart;
+  if (st.bossType && !storyMode.bossSpawned && stageKills >= Math.floor(st.goalKills * 0.65)) {
+    storyMode.bossSpawned = true;
+    storyMode.bossEntity = spawnEnemy(st.bossType);
+    startIntro(st.bossType, storyMode.bossEntity);
+  }
+  const bossDone = !st.bossType || (storyMode.bossSpawned && (!storyMode.bossEntity || storyMode.bossEntity.dead));
+  if (stageKills >= st.goalKills && bossDone) {
+    storyMode.completed = true;
+    const score = Math.round(stageKills * 10 + me.lvl * 25 + Math.max(0, 600 - time));
+    storyProg.cleared[st.id] = 1;
+    storyProg.unlocked = Math.max(storyProg.unlocked || 1, Math.min(STORY_STAGES.length, st.id + 1));
+    storyProg.savedStage = Math.min(STORY_STAGES.length, st.id + 1);
+    storyProg.bestScore[st.id] = Math.max(storyProg.bestScore[st.id] || 0, score);
+    saveStoryProg();
+    storyLeaderboard.push({ name: playerName || 'Player', stage: st.title, cls: me.cls, score, t: Date.now() });
+    try { localStorage.setItem('abyssPlusStoryLB', JSON.stringify(storyLeaderboard.slice(-30))); } catch (e) {}
+
+    const afterVictoryDialogue = () => {
+      addStars(40 + st.id * 5);
+      banner = { text: 'STAGE CLEARED!', sub: `${st.title} · Score ${score}`, life: 3.5 };
+      setTimeout(() => {
+        if (st.id < STORY_STAGES.length) {
+          if (coop && coop.role === 'host') {
+            const nextSt = STORY_STAGES.find(x => x.id === st.id + 1) || st;
+            coopStoryStage = nextSt.id;
+            setWorld(nextSt.world);
+            storyMode = { active: true, stageId: nextSt.id, killsAtStart: kills, bossSpawned: false, bossEntity: null, completed: false, score: 0 };
+            api('/rooms/' + coop.code + '/meta', 'PATCH', { storyStage: nextSt.id, world: nextSt.world });
+            banner = { text: nextSt.title.toUpperCase(), sub: `Objective: Defeat ${nextSt.goalKills} demons`, life: 3 };
+          } else {
+            launchStoryStage(st.id + 1, false);
+          }
+        } else backToStart();
+      }, 2200);
+    };
+
+    if (st.bossType === 'king') {
+      showNeonDialogue([
+        { side: 'left', type: 'player', speaker: playerName || 'GUARDIAN', role: CLASSES[selClass].name.toUpperCase(), en: 'Your Majesty! The Demon King has fallen!', vi: 'Tâu Bệ Hạ! Demon King đã bị đánh bại!' },
+        { side: 'left', type: 'king_npc', speaker: 'HIGH KING', role: 'ROYALTY', accent: '#ffd54a', en: 'Magnificent! Peace returns to our gates—wait, what is that tremor?!', vi: 'Tuyệt vời! Hòa bình đã trở lại—khoan đã, chấn động gì thế kia?!' },
+        { side: 'right', type: 'demon_king', speaker: 'DEMON KING', role: 'FALLEN LORD', accent: '#ff3b5c', en: 'This is not over... RISE, HELL CHAMPION! Avenge me and burn their world!', vi: 'Chưa kết thúc đâu... HÃY TRỖI DẬY, HELL CHAMPION! Hãy báo thù cho ta và thiêu rụi thế giới của chúng!' },
+        { side: 'right', type: 'champ', speaker: 'HELL CHAMPION', role: 'SUPREME BOSS', accent: '#ff3b5c', en: 'YOUR ASHES WILL FEED THE ABYSS!', vi: 'TRO TÀN CỦA NGƯƠI SẼ NUÔI SỐNG VỰC THẲM!' }
+      ], afterVictoryDialogue, true);
+    } else {
+      afterVictoryDialogue();
+    }
+  }
+}
+
+// 10. SOUL LEECHER & ABYSS HERALD MECHANICS + DRUID CHARGING STAG
+function tickV79EnemiesAndPets(dt) {
+  for (const e of enemies) {
+    if (e.dead || e.type !== 'herald') continue;
+    for (const o of enemiesNear(e.x, e.y, 380)) {
+      if (o === e || o.dead || o.heraldBuffed || o.pvp) continue;
+      const ty = ETYPES[o.type];
+      if (!ty || ty.ore || ty.still || ty.goblin) continue;
+      o.heraldBuffed = 1;
+      o.maxHp *= 1.45; o.hp *= 1.45; o.dmg *= 1.35; o.speed *= 1.25;
+    }
+  }
+
+  const leechRange = 430 * 0.5; // 50% of Wisp range
+  for (const e of enemies) {
+    if (e.dead || e.type !== 'leecher') continue;
+    if (e.leechTarget && (e.leechTarget.dead || Math.hypot(e.leechTarget.x - e.x, e.leechTarget.y - e.y) > leechRange + 24)) {
+      e.leechTarget = null;
+      e.leechT = 0;
+    }
+    if (!e.leechTarget) {
+      let bestP = null, bd = leechRange * leechRange;
+      for (const pl of players) {
+        if (pl.dead) continue;
+        const d2 = (pl.x - e.x) ** 2 + (pl.y - e.y) ** 2;
+        if (d2 <= bd) { bd = d2; bestP = pl; }
+      }
+      if (bestP) { e.leechTarget = bestP; e.leechT = 0; }
+    }
+    if (e.leechTarget && !e.leechTarget.dead) {
+      e.leechT = (e.leechT || 0) + dt;
+      if (e.leechT >= 5.0) {
+        const victim = e.leechTarget;
+        e.leechTarget = null; e.leechT = 0;
+        if (!(pg.on && window._v79Invul && victim === me)) {
+          use(victim); victim.hp = 0; die(); unuse(victim); use(me);
+        }
+      }
+    }
+  }
+
+  for (const pl of players) {
+    if (pl.dead || pl.cls !== 'druid' || !(pl.stags > 0)) continue;
+    pl._stags = pl._stags || [];
+    const stagMaxHp = 220 * (1 + 0.25 * (pl.stagLv || 1)) * (1 + time / 420);
+    while (pl._stags.length < pl.stags) {
+      pl._stags.push({ x: pl.x + rand(-25, 25), y: pl.y + rand(-25, 25), hp: stagMaxHp, maxHp: stagMaxHp, dead: false, respawn: 0, chargeCd: 0, vx: 0, vy: 0, ang: 0 });
+    }
+    use(pl);
+    for (const stg of pl._stags) {
+      stg.maxHp = stagMaxHp;
+      if (stg.dead) {
+        stg.respawn -= dt;
+        if (stg.respawn <= 0) { stg.dead = false; stg.hp = stg.maxHp; stg.x = pl.x; stg.y = pl.y; }
+        continue;
+      }
+      stg.chargeCd = Math.max(0, stg.chargeCd - dt);
+      const tgt = nearestEnemy(pl.x, pl.y, 440);
+      if (tgt && stg.chargeCd <= 0) {
+        const dx = tgt.x - stg.x, dy = tgt.y - stg.y, d = Math.hypot(dx, dy) || 1;
+        stg.ang = Math.atan2(dy, dx);
+        stg.x += (dx / d) * 390 * dt;
+        stg.y += (dy / d) * 390 * dt;
+        if (d < tgt.r + 18) {
+          stg.chargeCd = 2.4;
+          const stagDmg = pl.w.dmg * 0.42 * (1 + 0.15 * (pl.stagLv || 1));
+          const baseStun = (1.1 + 0.25 * (pl.stagStun || 0));
+          const bossFactor = tgt.type === 'champ' ? 0.28 : tgt.type === 'king' ? 0.38 : tgt.type === 'boss' ? 0.55 : 1.0;
+          const stunDur = baseStun * bossFactor;
+          damageEnemy(tgt, stagDmg, (dx / d) * 210, (dy / d) * 210, stunDur);
+          if (BIG_DEMONS[tgt.type]) tgt.stun = Math.max(tgt.stun || 0, stunDur);
+          effects.push({ kind: 'slam', x: tgt.x, y: tgt.y, r: 42, life: 0.28, max: 0.28 });
+        }
+      } else {
+        const dx = pl.x - stg.x, dy = pl.y - stg.y, d = Math.hypot(dx, dy) || 1;
+        if (d > 55) { stg.x += (dx / d) * 220 * dt; stg.y += (dy / d) * 220 * dt; stg.ang = Math.atan2(dy, dx); }
+      }
+    }
+    unuse(pl); use(me);
+  }
+}
+
+function drawV79Entities(S2) {
+  for (const e of enemies) {
+    if (e.dead || e.type !== 'leecher') continue;
+    const [ex, ey] = S2(e.x, e.y);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 42, 212, 0.22)';
+    ctx.setLineDash([6, 6]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(ex, ey, 215, 0, TAU); ctx.stroke();
+    ctx.setLineDash([]);
+    if (e.leechTarget && !e.leechTarget.dead) {
+      const [px, py] = S2(e.leechTarget.x, e.leechTarget.y);
+      const prog = Math.min(1, (e.leechT || 0) / 5.0);
+      ctx.strokeStyle = prog > 0.7 ? '#ff3b5c' : '#ff2ad4';
+      ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = 14;
+      ctx.lineWidth = 3 + prog * 3;
+      ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(px, py); ctx.stroke();
+      ctx.shadowBlur = 0;
+      const rem = Math.max(0, 5 - (e.leechT || 0));
+      ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(px - 24, py - PR - 28, 48, 6);
+      ctx.fillStyle = '#ff2ad4'; ctx.fillRect(px - 24, py - PR - 28, 48 * (1 - prog), 6);
+      ctx.font = '900 11px ui-monospace, Menlo, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#ff9de9';
+      ctx.fillText(rem.toFixed(1) + 's', px, py - PR - 33);
+    }
+    ctx.restore();
+  }
+  for (const pl of players) {
+    for (const stg of (pl._stags || [])) {
+      if (stg.dead) continue;
+      const [sx, sy] = S2(stg.x, stg.y);
+      ctx.save();
+      ctx.translate(sx, sy); ctx.rotate(stg.ang || 0);
+      ctx.shadowColor = '#7dffb2'; ctx.shadowBlur = 12;
+      ctx.fillStyle = '#a8ffbf'; ctx.strokeStyle = '#39ff6a'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(0, 0, 14, 8, 0, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(10, -4); ctx.lineTo(20, -11); ctx.moveTo(15, -8); ctx.lineTo(18, -14);
+      ctx.moveTo(10, 4); ctx.lineTo(20, 11); ctx.moveTo(15, 8); ctx.lineTo(18, 14); ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(sx - 16, sy - 20, 32, 4);
+      ctx.fillStyle = '#7dffb2'; ctx.fillRect(sx - 16, sy - 20, 32 * Math.max(0, stg.hp / stg.maxHp), 4);
+    }
+  }
+}
+
+// 11. MULTIPLAYER CHAT & VIRTUAL KEYBOARD
+let chatSeenKeys = new Set(), chatStream = null;
+function initVirtualKeyboard() {
+  const kb = $('virtualKb');
+  if (!kb || kb.dataset.ready) return;
+  kb.dataset.ready = '1';
+  const rows = [
+    ['1','2','3','4','5','6','7','8','9','0'],
+    ['Q','W','E','R','T','Y','U','I','O','P'],
+    ['A','S','D','F','G','H','J','K','L'],
+    ['Z','X','C','V','B','N','M','⌫'],
+    ['SPACE','CLEAR','SEND']
+  ];
+  rows.forEach(r => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'vkb-row';
+    r.forEach(k => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'vkb-key';
+      btn.textContent = k;
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        const inp = $('mpChatInput');
+        if (!inp) return;
+        if (k === '⌫') inp.value = inp.value.slice(0, -1);
+        else if (k === 'SPACE') inp.value += ' ';
+        else if (k === 'CLEAR') inp.value = '';
+        else if (k === 'SEND') sendMpChat();
+        else if (inp.value.length < 80) inp.value += k.toLowerCase();
+        inp.focus();
+      });
+      rowEl.appendChild(btn);
+    });
+    kb.appendChild(rowEl);
+  });
+}
+function appendChatMsg(key, msg) {
+  if (!msg || chatSeenKeys.has(key)) return;
+  chatSeenKeys.add(key);
+  const log = $('mpChatLog');
+  if (!log) return;
+  const row = document.createElement('div');
+  row.className = 'chat-msg';
+  const orb = document.createElement('i');
+  orb.className = 'chat-orb';
+  const c = (msg.s && msg.s.m) || '#00f0ff';
+  orb.style.background = c;
+  orb.style.boxShadow = '0 0 8px ' + c;
+  const sender = document.createElement('span');
+  sender.className = 'chat-sender';
+  sender.textContent = String(msg.n || 'Player').slice(0, 12) + ':';
+  const txt = document.createElement('span');
+  txt.textContent = String(msg.t || '').slice(0, 80);
+  row.append(orb, sender, txt);
+  log.appendChild(row);
+  log.scrollTop = log.scrollHeight;
+}
+function bindMpChat(code) {
+  if (!code) return;
+  chatSeenKeys.clear();
+  if ($('mpChatLog')) $('mpChatLog').textContent = '';
+  $('mpChatWrap').classList.remove('hidden');
+  initVirtualKeyboard();
+  if (chatStream && chatStream.close) chatStream.close();
+  chatStream = stream('/rooms/' + code + '/chat', data => {
+    if (!data || typeof data !== 'object') return;
+    Object.entries(data).forEach(([k, v]) => appendChatMsg(k, v));
+  });
+}
+function unbindMpChat() {
+  if (chatStream && chatStream.close) chatStream.close();
+  chatStream = null;
+  $('mpChatWrap').classList.add('hidden');
+  $('virtualKb').classList.add('hidden');
+}
+function sendMpChat() {
+  const code = (coop && coop.code) || (lobby && lobby.code);
+  const inp = $('mpChatInput');
+  if (!code || !inp) return;
+  const text = inp.value.trim().slice(0, 80);
+  if (!text) return;
+  inp.value = '';
+  const payload = { n: (playerName || 'Player').slice(0, 12), t: text, s: skinInfo(), at: Date.now() };
+  const localId = 'loc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  appendChatMsg(localId, payload);
+  api('/rooms/' + code + '/chat/' + localId, 'PUT', payload);
+}
+$('mpChatSendBtn').addEventListener('click', sendMpChat);
+$('mpChatInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendMpChat(); } });
+$('mpChatKbBtn').addEventListener('click', () => $('virtualKb').classList.toggle('hidden'));
+applyLangUI();
+
 </script>
 </body>
 </html>
