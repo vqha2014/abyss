@@ -341,6 +341,22 @@
   }
   .vkb-key:active { background: rgba(0, 240, 255, 0.35); }
 
+
+  /* ===== Pet Shop, Neon Lucky Wheel & Pet Inventory ===== */
+  .pet-tabs { display: flex; gap: 0.5rem; justify-content: center; margin: 0.5rem 0 0.85rem; flex-wrap: wrap; }
+  .pet-tab { padding: 0.5rem 1.05rem; border-radius: 999px; border: 1px solid rgba(0, 240, 255, 0.45); background: rgba(5, 8, 22, 0.85); color: #cfe8ff; font-family: inherit; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.08em; cursor: pointer; touch-action: manipulation; }
+  .pet-tab.on { border-color: #ff4fd8; color: #fff; background: rgba(176, 38, 255, 0.25); box-shadow: 0 0 16px rgba(255, 79, 216, 0.45); }
+  .wheel-stage { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; margin: 0.4rem 0 0.9rem; }
+  .wheel-wrap { position: relative; width: min(330px, 82vw); height: min(330px, 82vw); display: grid; place-items: center; }
+  #petWheelCv { position: static !important; width: 100%; height: 100%; filter: drop-shadow(0 0 18px rgba(176, 38, 255, 0.45)); }
+  .wheel-spin-btn { margin-top: 0.2rem !important; padding: 0.7rem 1.9rem !important; font-size: 0.95rem !important; border-color: #ff4fd8 !important; color: #fff !important; background: linear-gradient(135deg, rgba(176, 38, 255, 0.35), rgba(0, 240, 255, 0.25)) !important; box-shadow: 0 0 24px rgba(255, 79, 216, 0.45) !important; }
+  .wheel-spin-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .wheel-result { width: 100%; padding: 0.8rem 0.9rem; border-radius: 12px; border: 2px solid var(--cyan); background: rgba(10, 14, 39, 0.92); display: flex; align-items: center; gap: 0.85rem; text-align: left; box-shadow: 0 0 22px rgba(0, 240, 255, 0.25); }
+  .wheel-result canvas { position: static !important; width: 64px; height: 64px; flex: none; border-radius: 10px; background: rgba(5, 8, 22, 0.9); border: 1px solid rgba(255, 255, 255, 0.16); }
+  .pet-row-icon { position: static !important; width: 44px; height: 44px; flex: none; border-radius: 8px; background: rgba(5, 8, 22, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); margin-right: 0.6rem; }
+  .pet-left { display: flex; align-items: center; min-width: 0; }
+  .pet-odds { display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; justify-content: center; font-size: 0.72rem; color: #9aa3b8; }
+
 </style>
 </head>
 <body>
@@ -386,6 +402,8 @@
         <button class="mode-btn" id="achBtn">Achievements</button>
         <button class="mode-btn" id="skinsBtn">Skins</button>
         <button class="mode-btn" id="gearBtn">Gear</button>
+        <button class="mode-btn" id="petShopBtn">Pet Shop</button>
+        <button class="mode-btn" id="langQuickBtn" data-no-i18n="1">Tiếng Việt / English</button>
         <button class="mode-btn" id="codesBtn">Codes</button>
         <button class="mode-btn" id="pgBtn">Playground</button>
         <button class="mode-btn" id="helpBtn">Help</button>
@@ -411,7 +429,8 @@
       <button class="btn btn-alt" id="shopBtn">Skins</button>
       <button class="btn btn-alt" id="pauseHelpBtn" style="margin-left:0.6rem">Help</button>
       <button class="btn btn-alt hidden" id="pausePgBtn" style="margin-left:0.6rem">Playground</button>
-      <button class="btn btn-alt hidden" id="pauseGearBtn" style="margin-left:0.6rem">Gear</button><br>
+      <button class="btn btn-alt hidden" id="pauseGearBtn" style="margin-left:0.6rem">Gear</button>
+      <button class="btn btn-alt" id="pausePetBtn" style="margin-left:0.6rem">Pet Shop</button><br>
       <button class="home" id="menuBtn">⌂ ABYSS menu</button>
       <a class="home" href="https://vqha2014.github.io/">◂ All games</a><button class="lb-open">Leaderboard</button>
     </div>
@@ -1341,6 +1360,7 @@ const equipped = () => prog.equip.map(id => prog.items.find(i => i.id === id)).f
 function gearStats(list) {
   const g = { dmg: 0, hp: 0, as: 0, armor: 0, speed: 0, xp: 0, regen: 0 };
   for (const it of list || []) if (it && GEAR_TYPES[it.type]) g[it.type] += itemVal(it);
+  if (typeof addEquippedPetStats === 'function') addEquippedPetStats(g);
   return g;
 }
 const gearN = (g, k, cap) => Math.max(0, Math.min(cap, +g[k] || 0));
@@ -1900,7 +1920,7 @@ function openMeta(kind) {
   metaTimer = setInterval(() => { resTick(); if (metaKind === 'research') renderMeta(); }, 1000);
 }
 function closeMeta() {
-  if (metaKind === 'mimic' && mimicEvt) { metaKind = ''; chooseMimic(0); return; } if (pg.on && me && (metaKind === 'gear' || metaKind === 'enhance')) { regear(me); updateHUD(true); }
+  if (metaKind === 'mimic' && mimicEvt) { metaKind = ''; chooseMimic(0); return; } if (me && (metaKind === 'petshop' || (pg.on && (metaKind === 'gear' || metaKind === 'enhance')))) { regear(me); updateHUD(true); }
   waitBind = ''; $('metaModal').classList.add('hidden'); clearInterval(metaTimer); refreshMetaUI(); }
 function mrow(title, sub, act, cls) {
   const row = document.createElement('div'); row.className = 'mrow' + (cls ? ' ' + cls : '');
@@ -1938,6 +1958,7 @@ function renderMeta() {
     const n = ACH.filter(x => prog.ach[x.id]).length;
     $('metaTitle').textContent = 'ACHIEVEMENTS ' + n + '/' + ACH.length;
     for (const x of ACH) mrow((prog.ach[x.id] ? '\u2713 ' : '') + x.name, x.desc + ' \u00b7 +' + x.reward + ' stars', null, prog.ach[x.id] ? 'done' : 'locked');
+  } else if (metaKind === 'petshop') { renderPetShop(body);
   } else if (metaKind === 'gear') { renderGear(body);
   } else if (metaKind === 'enhance') { renderEnhance(body);
   } else if (metaKind === 'codes') { renderCodes(body);
@@ -1961,7 +1982,7 @@ function renderMeta() {
   } else if (metaKind === 'playground') { renderPlayground(body);
   } else if (metaKind === 'help') {
     $('metaTitle').textContent = tr('howToPlay');
-    mrow(tr('language'), 'Switch interface & Story dialogue language / Đổi ngôn ngữ giao diện & cốt truyện', mbtn(tr('langBtn'), true, () => { curLang = curLang === 'en' ? 'vi' : 'en'; try { localStorage.setItem('abyssPlusLang', curLang); } catch (e) {} applyLangUI(); renderMeta(); }));
+    { const lb = mbtn('Tiếng Việt / English', true, toggleGameLanguage); lb.setAttribute('data-no-i18n', '1'); mrow(tr('language'), 'Switch interface & Story dialogue language / Đổi ngôn ngữ giao diện & cốt truyện', lb); }
     const kb = (act) => { const b = mbtn(waitBind === act ? 'Press a key\u2026' : keyName(KB[act]), true, () => { waitBind = act; renderMeta(); }); return b; };
     mrow('Move', 'WASD or the arrow keys. On a phone or tablet: drag anywhere on the screen.', null);
     mrow('Attack', 'Your orb attacks by itself. Just stay alive!', null);
@@ -6265,6 +6286,7 @@ function render() {
   }
   // v7.9 Soul Leecher tether & Druid Charging Stags
   drawV79Entities(S2);
+  if (typeof drawEquippedPets === 'function') drawEquippedPets(S2);
   // Fallen twins
   drawGroves(S2);
   drawTraps(S2);
@@ -7350,6 +7372,766 @@ $('mpChatSendBtn').addEventListener('click', sendMpChat);
 $('mpChatInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendMpChat(); } });
 $('mpChatKbBtn').addEventListener('click', () => $('virtualKb').classList.toggle('hidden'));
 applyLangUI();
+
+
+// =========================================================================
+// PET SYSTEM (Ranks, 18 Unique Shapes, Inventory, Upgrade Lv 1..10, Neon Lucky Wheel, Codes)
+// =========================================================================
+const PET_TIERS = [
+  null,
+  { id: 1, name: 'Common', vi: 'Thường', color: '#c9d1e3', w: 40, mul: 1.0 },
+  { id: 2, name: 'Uncommon', vi: 'Không phổ biến', color: '#39ff6a', w: 28, mul: 1.45 },
+  { id: 3, name: 'Rare', vi: 'Hiếm', color: '#3d8bff', w: 16, mul: 2.0 },
+  { id: 4, name: 'Epic', vi: 'Sử thi', color: '#b26bff', w: 9, mul: 2.8 },
+  { id: 5, name: 'Legendary', vi: 'Huyền thoại', color: '#ff8a2a', w: 5, mul: 3.9 },
+  { id: 6, name: 'Mythic', vi: 'Thần thoại', color: '#ff3b5c', w: 2, mul: 5.4 }
+];
+const PET_MAX_LVL = 10;
+const PET_SPIN_COST = 150;
+const PET_INV_MAX = 80;
+const PET_STAT_META = {
+  hp:    { en: '% max HP',       vi: '% máu tối đa' },
+  regen: { en: ' HP/s regen',    vi: ' hồi máu/giây' },
+  dmg:   { en: '% damage',       vi: '% sát thương' },
+  speed: { en: '% move speed',   vi: '% tốc chạy' },
+  as:    { en: '% attack speed', vi: '% tốc đánh' },
+  armor: { en: ' armor',         vi: ' giáp' },
+  xp:    { en: '% XP',           vi: '% kinh nghiệm' }
+};
+const PET_SPECIES = {
+  spark_slime:      { tier: 1, name: 'Neon Slime',      vi: 'Slime Neon',        shape: 'slime',   color: '#7df9ff', stats: { hp: 5 } },
+  bit_beetle:       { tier: 1, name: 'Bit Beetle',      vi: 'Bọ Cánh Cứng',      shape: 'beetle',  color: '#c9d1e3', stats: { armor: 0.8 } },
+  glow_moth:        { tier: 1, name: 'Glow Moth',       vi: 'Bướm Đêm',          shape: 'moth',    color: '#ffe08a', stats: { speed: 3 } },
+  cyber_cat:        { tier: 2, name: 'Cyber Cat',       vi: 'Mèo Máy',           shape: 'cat',     color: '#39ff6a', stats: { as: 5 } },
+  moss_turtle:      { tier: 2, name: 'Star Turtle',     vi: 'Rùa Sao',           shape: 'turtle',  color: '#5cffb0', stats: { regen: 0.7 } },
+  volt_pup:         { tier: 2, name: 'Volt Pup',        vi: 'Cún Điện',          shape: 'pup',     color: '#a8ff60', stats: { dmg: 6 } },
+  crystal_fox:      { tier: 3, name: 'Crystal Fox',     vi: 'Cáo Pha Lê',        shape: 'fox',     color: '#3d8bff', stats: { speed: 6, dmg: 5 } },
+  frost_owl:        { tier: 3, name: 'Mecha Owl',       vi: 'Cú Cơ Khí',         shape: 'owl',     color: '#7fd8ff', stats: { xp: 12 } },
+  iron_crab:        { tier: 3, name: 'Shield Crab',     vi: 'Cua Khiên',         shape: 'crab',    color: '#5ca4ff', stats: { armor: 1.8, hp: 6 } },
+  plasma_bat:       { tier: 4, name: 'Plasma Bat',      vi: 'Dơi Plasma',        shape: 'bat',     color: '#b26bff', stats: { dmg: 12, as: 6 } },
+  lotus_sprite:     { tier: 4, name: 'Lotus Sprite',    vi: 'Tinh Linh Sen',     shape: 'sprite',  color: '#ff7ad9', stats: { regen: 1.6, hp: 10 } },
+  rune_golem:       { tier: 4, name: 'Mini Golem',      vi: 'Golem Tí Hon',      shape: 'golem',   color: '#9d7bff', stats: { hp: 16, armor: 2.2 } },
+  neon_dragon:      { tier: 5, name: 'Neon Dragon',     vi: 'Rồng Neon',         shape: 'dragon',  color: '#ff8a2a', stats: { dmg: 20, hp: 14 } },
+  solar_phoenix:    { tier: 5, name: 'Solar Phoenix',   vi: 'Phượng Hoàng',      shape: 'phoenix', color: '#ffd54a', stats: { regen: 2.8, speed: 8 } },
+  chrono_hawk:      { tier: 5, name: 'Chrono Hawk',     vi: 'Ưng Thời Gian',     shape: 'hawk',    color: '#ffaa44', stats: { as: 14, dmg: 12 } },
+  void_seraph:      { tier: 6, name: 'Void Seraph',     vi: 'Thiên Sứ Hư Không', shape: 'seraph',  color: '#ff3b5c', stats: { dmg: 28, hp: 24, regen: 2.5 } },
+  astral_leviathan: { tier: 6, name: 'Astral Wyrm',     vi: 'Hải Long Tinh Tú',  shape: 'wyrm',    color: '#ff4fd8', stats: { hp: 32, armor: 4.5, regen: 2.0 } },
+  star_kitsune:     { tier: 6, name: 'Star Kitsune',    vi: 'Cửu Vĩ Tinh Tú',    shape: 'kitsune', color: '#ff2a7a', stats: { as: 20, speed: 12, dmg: 20 } }
+};
+const PET_SPECIES_BY_TIER = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+for (const [k, v] of Object.entries(PET_SPECIES)) PET_SPECIES_BY_TIER[v.tier].push(k);
+
+prog.pets = Array.isArray(prog.pets) ? prog.pets : [];
+prog.equipPets = Array.isArray(prog.equipPets) ? prog.equipPets : [];
+const petSlots = () => Math.max(2, prog.petSlots || 2);
+const equippedPets = () => prog.equipPets.map(id => prog.pets.find(x => x.id === id)).filter(Boolean).slice(0, petSlots());
+const petSpec = pt => PET_SPECIES[pt.species] || PET_SPECIES.spark_slime;
+const petTier = pt => PET_TIERS[pt.tier] || PET_TIERS[1];
+const petName = pt => {
+  const sp = petSpec(pt), ti = petTier(pt);
+  const nm = curLang === 'vi' ? sp.vi : sp.name;
+  const rk = curLang === 'vi' ? ti.vi : ti.name;
+  return `${nm} [${rk}] Lv.${pt.lvl}`;
+};
+function petStatsOf(pt) {
+  const sp = petSpec(pt), mul = 1 + 0.18 * ((pt.lvl || 1) - 1), out = {};
+  for (const [k, v] of Object.entries(sp.stats)) out[k] = Math.round(v * mul * 10) / 10;
+  return out;
+}
+function petStatText(pt) {
+  const st = petStatsOf(pt);
+  return Object.entries(st).map(([k, v]) => {
+    const m = PET_STAT_META[k] || { en: k, vi: k };
+    return '+' + v + (curLang === 'vi' ? m.vi : m.en);
+  }).join(' · ');
+}
+function petUpgradeCost(pt) { return Math.round(45 * pt.tier * Math.pow(pt.lvl, 1.38)); }
+function petSellPrice(pt) { return Math.round(25 * pt.tier * pt.lvl); }
+function makePet(tier, speciesKey, lvl) {
+  const t = Math.max(1, Math.min(6, tier | 0));
+  const pool = PET_SPECIES_BY_TIER[t] || PET_SPECIES_BY_TIER[1];
+  const species = speciesKey && PET_SPECIES[speciesKey] ? speciesKey : pool[Math.floor(Math.random() * pool.length)];
+  return { id: 'pet_' + Math.random().toString(36).slice(2, 10), species, tier: PET_SPECIES[species].tier, lvl: Math.max(1, Math.min(PET_MAX_LVL, lvl || 1)) };
+}
+function givePet(pt, why) {
+  if (prog.pets.length >= PET_INV_MAX) {
+    toast(curLang === 'vi' ? 'Túi thú cưng đã đầy! Hãy bán bớt thú cưng.' : 'Pet inventory is full! Sell some pets first.');
+    return false;
+  }
+  prog.pets.push(pt);
+  saveProg();
+  toast((why ? why + ': ' : '') + petName(pt) + ' (' + petStatText(pt) + ')');
+  return true;
+}
+function addEquippedPetStats(g) {
+  for (const pt of equippedPets()) {
+    const st = petStatsOf(pt);
+    for (const [k, v] of Object.entries(st)) if (k in g) g[k] += v;
+  }
+}
+
+function drawPetShape(g, x, y, r, speciesKey, t) {
+  const sp = PET_SPECIES[speciesKey] || PET_SPECIES.spark_slime;
+  const ti = PET_TIERS[sp.tier] || PET_TIERS[1];
+  const col = sp.color || ti.color;
+  const sh = sp.shape;
+  const bob = Math.sin((t || 0) * 5) * r * 0.14;
+  g.save();
+  g.translate(x, y + bob);
+  g.lineJoin = 'round'; g.lineCap = 'round';
+  g.shadowColor = col; g.shadowBlur = r * 0.9;
+  g.strokeStyle = col; g.fillStyle = 'rgba(' + hexRgb(col) + ', 0.35)'; g.lineWidth = Math.max(1.5, r * 0.14);
+
+  if (sh === 'slime') {
+    g.beginPath(); g.arc(0, r * 0.15, r * 0.85, Math.PI, 0); g.quadraticCurveTo(r * 0.85, r * 0.85, 0, r * 0.85); g.quadraticCurveTo(-r * 0.85, r * 0.85, -r * 0.85, r * 0.15); g.closePath(); g.fill(); g.stroke();
+    g.shadowBlur = 0; g.fillStyle = '#fff'; g.beginPath(); g.arc(-r * 0.28, r * 0.1, r * 0.14, 0, TAU); g.arc(r * 0.28, r * 0.1, r * 0.14, 0, TAU); g.fill();
+  } else if (sh === 'beetle') {
+    g.beginPath(); g.ellipse(0, r * 0.1, r * 0.72, r * 0.88, 0, 0, TAU); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(0, -r * 0.75); g.lineTo(0, r * 0.95); g.moveTo(-r * 0.25, -r * 0.75); g.lineTo(-r * 0.45, -r * 1.2); g.moveTo(r * 0.25, -r * 0.75); g.lineTo(r * 0.45, -r * 1.2); g.stroke();
+  } else if (sh === 'moth') {
+    const fl = Math.sin((t || 0) * 14) * r * 0.25;
+    for (const s of [-1, 1]) {
+      g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(s * r * 1.2, -r * 0.9 - fl, s * r * 1.05, r * 0.15); g.quadraticCurveTo(s * r * 0.75, r * 0.8, 0, r * 0.35); g.closePath(); g.fill(); g.stroke();
+    }
+    g.fillStyle = '#fff'; g.beginPath(); g.ellipse(0, 0, r * 0.22, r * 0.55, 0, 0, TAU); g.fill();
+  } else if (sh === 'cat') {
+    g.beginPath(); g.arc(0, r * 0.1, r * 0.78, 0, TAU); g.fill(); g.stroke();
+    for (const s of [-1, 1]) { g.beginPath(); g.moveTo(s * r * 0.22, -r * 0.55); g.lineTo(s * r * 0.72, -r * 1.15); g.lineTo(s * r * 0.75, -r * 0.22); g.closePath(); g.fill(); g.stroke(); }
+    g.shadowBlur = 0; g.fillStyle = '#fff'; g.beginPath(); g.arc(-r * 0.28, r * 0.05, r * 0.13, 0, TAU); g.arc(r * 0.28, r * 0.05, r * 0.13, 0, TAU); g.fill();
+  } else if (sh === 'turtle') {
+    g.beginPath();
+    for (let i = 0; i < 6; i++) { const a = i * TAU / 6; i ? g.lineTo(Math.cos(a) * r * 0.85, Math.sin(a) * r * 0.75) : g.moveTo(Math.cos(a) * r * 0.85, Math.sin(a) * r * 0.75); }
+    g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.arc(r * 0.95, 0, r * 0.32, 0, TAU); g.fill(); g.stroke();
+  } else if (sh === 'pup') {
+    g.beginPath(); g.arc(0, r * 0.1, r * 0.75, 0, TAU); g.fill(); g.stroke();
+    for (const s of [-1, 1]) { g.beginPath(); g.ellipse(s * r * 0.78, -r * 0.1, r * 0.26, r * 0.55, s * 0.3, 0, TAU); g.fill(); g.stroke(); }
+    g.shadowBlur = 0; g.fillStyle = '#fff'; g.beginPath(); g.arc(-r * 0.25, 0, r * 0.13, 0, TAU); g.arc(r * 0.25, 0, r * 0.13, 0, TAU); g.fill();
+  } else if (sh === 'fox') {
+    g.beginPath(); g.moveTo(0, r * 0.88); g.lineTo(r * 0.9, -r * 0.15); g.lineTo(r * 0.65, -r * 1.1); g.lineTo(r * 0.2, -r * 0.45); g.lineTo(-r * 0.2, -r * 0.45); g.lineTo(-r * 0.65, -r * 1.1); g.lineTo(-r * 0.9, -r * 0.15); g.closePath(); g.fill(); g.stroke();
+    g.shadowBlur = 0; g.fillStyle = '#fff'; g.beginPath(); g.arc(-r * 0.28, r * 0.05, r * 0.12, 0, TAU); g.arc(r * 0.28, r * 0.05, r * 0.12, 0, TAU); g.fill();
+  } else if (sh === 'owl') {
+    g.beginPath(); g.ellipse(0, r * 0.05, r * 0.78, r * 0.9, 0, 0, TAU); g.fill(); g.stroke();
+    g.shadowBlur = 0; g.strokeStyle = '#fff'; g.fillStyle = '#fff';
+    g.beginPath(); g.arc(-r * 0.28, -r * 0.15, r * 0.22, 0, TAU); g.arc(r * 0.28, -r * 0.15, r * 0.22, 0, TAU); g.stroke();
+    g.beginPath(); g.moveTo(-r * 0.12, r * 0.12); g.lineTo(r * 0.12, r * 0.12); g.lineTo(0, r * 0.34); g.closePath(); g.fill();
+  } else if (sh === 'crab') {
+    g.beginPath(); g.ellipse(0, r * 0.15, r * 0.88, r * 0.62, 0, 0, TAU); g.fill(); g.stroke();
+    for (const s of [-1, 1]) { g.beginPath(); g.arc(s * r * 0.85, -r * 0.65, r * 0.34, 0.4, TAU - 0.4); g.stroke(); }
+  } else if (sh === 'bat') {
+    const fl = Math.sin((t || 0) * 16) * r * 0.28;
+    g.beginPath(); g.moveTo(0, -r * 0.35); g.lineTo(r * 1.25, -r * 0.75 - fl); g.lineTo(r * 0.85, r * 0.35); g.lineTo(0, r * 0.1); g.lineTo(-r * 0.85, r * 0.35); g.lineTo(-r * 1.25, -r * 0.75 - fl); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(-r * 0.2, -r * 0.08, r * 0.11, 0, TAU); g.arc(r * 0.2, -r * 0.08, r * 0.11, 0, TAU); g.fill();
+  } else if (sh === 'sprite') {
+    for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + (t || 0); g.beginPath(); g.ellipse(Math.cos(a) * r * 0.55, Math.sin(a) * r * 0.55, r * 0.42, r * 0.22, a, 0, TAU); g.fill(); g.stroke(); }
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(0, 0, r * 0.32, 0, TAU); g.fill();
+  } else if (sh === 'golem') {
+    g.beginPath(); g.rect(-r * 0.65, -r * 0.65, r * 1.3, r * 1.3); g.fill(); g.stroke();
+    const ang = (t || 0) * 2.5;
+    g.beginPath(); g.arc(Math.cos(ang) * r * 1.1, Math.sin(ang) * r * 0.6, r * 0.26, 0, TAU); g.arc(-Math.cos(ang) * r * 1.1, -Math.sin(ang) * r * 0.6, r * 0.26, 0, TAU); g.fill(); g.stroke();
+  } else if (sh === 'dragon') {
+    const fl = Math.sin((t || 0) * 10) * r * 0.22;
+    for (const s of [-1, 1]) { g.beginPath(); g.moveTo(0, 0); g.lineTo(s * r * 1.35, -r * 0.85 - fl); g.lineTo(s * r * 1.05, r * 0.45); g.closePath(); g.fill(); g.stroke(); }
+    g.beginPath(); g.moveTo(0, -r * 1.05); g.lineTo(r * 0.55, 0); g.lineTo(0, r * 0.95); g.lineTo(-r * 0.55, 0); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#fff3b0'; g.beginPath(); g.arc(-r * 0.18, -r * 0.25, r * 0.12, 0, TAU); g.arc(r * 0.18, -r * 0.25, r * 0.12, 0, TAU); g.fill();
+  } else if (sh === 'phoenix') {
+    const fl = Math.sin((t || 0) * 12) * r * 0.26;
+    for (const s of [-1, 1]) { g.beginPath(); g.moveTo(0, -r * 0.15); g.quadraticCurveTo(s * r * 1.35, -r * 0.95 - fl, s * r * 1.15, r * 0.25); g.lineTo(0, r * 0.45); g.closePath(); g.fill(); g.stroke(); }
+    g.beginPath(); g.moveTo(0, r * 0.4); g.lineTo(-r * 0.35, r * 1.25); g.lineTo(0, r * 0.95); g.lineTo(r * 0.35, r * 1.25); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(0, -r * 0.3, r * 0.3, 0, TAU); g.fill();
+  } else if (sh === 'hawk') {
+    g.beginPath(); g.moveTo(0, -r * 0.95); g.lineTo(r * 1.25, r * 0.1); g.lineTo(0, r * 0.65); g.lineTo(-r * 1.25, r * 0.1); g.closePath(); g.fill(); g.stroke();
+    g.strokeStyle = '#7df9ff'; g.beginPath(); g.arc(0, -r * 0.1, r * 0.95, 0, TAU); g.stroke();
+  } else if (sh === 'seraph') {
+    for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + Math.sin((t || 0) * 4) * 0.15; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a) * r * 1.3, Math.sin(a) * r * 1.3); g.lineTo(Math.cos(a + 0.32) * r * 0.95, Math.sin(a + 0.32) * r * 0.95); g.closePath(); g.fill(); g.stroke(); }
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(0, 0, r * 0.4, 0, TAU); g.fill();
+    g.strokeStyle = '#ffd54a'; g.beginPath(); g.ellipse(0, -r * 0.85, r * 0.55, r * 0.18, 0, 0, TAU); g.stroke();
+  } else if (sh === 'wyrm') {
+    g.beginPath();
+    for (let i = 0; i <= 10; i++) { const f = i / 10, px = (f - 0.5) * r * 2.1, py = Math.sin(f * 5 + (t || 0) * 6) * r * 0.55; i ? g.lineTo(px, py) : g.moveTo(px, py); }
+    g.lineWidth = Math.max(3, r * 0.35); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(r * 1.05, Math.sin(5 + (t || 0) * 6) * r * 0.55, r * 0.28, 0, TAU); g.fill();
+  } else {
+    for (let i = -2; i <= 2; i++) { const a = i * 0.28 + Math.sin((t || 0) * 5 + i) * 0.08; g.beginPath(); g.moveTo(0, r * 0.2); g.quadraticCurveTo(Math.sin(a) * r * 1.1, r * 1.1, Math.sin(a) * r * 1.35, -r * 0.2); g.stroke(); }
+    g.beginPath(); g.moveTo(0, r * 0.6); g.lineTo(r * 0.72, -r * 0.2); g.lineTo(r * 0.55, -r * 0.95); g.lineTo(0, -r * 0.35); g.lineTo(-r * 0.55, -r * 0.95); g.lineTo(-r * 0.72, -r * 0.2); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(-r * 0.22, -r * 0.08, r * 0.11, 0, TAU); g.arc(r * 0.22, -r * 0.08, r * 0.11, 0, TAU); g.fill();
+  }
+  g.restore();
+}
+
+function makePetIconCanvas(speciesKey, size) {
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  c.className = 'pet-row-icon';
+  const g = c.getContext('2d');
+  drawPetShape(g, size / 2, size / 2, size * 0.3, speciesKey, 0);
+  return c;
+}
+
+function drawEquippedPets(S2) {
+  if (!me || me.dead) return;
+  const eq = equippedPets();
+  if (!eq.length) return;
+  const [px, py] = S2(me.x, me.y);
+  const n = eq.length;
+  for (let i = 0; i < n; i++) {
+    const pt = eq[i];
+    const sideAngle = n === 1 ? -Math.PI * 0.75 : (i === 0 ? -Math.PI * 0.8 : -Math.PI * 0.2) + (i >= 2 ? (i - 1) * 1.1 : 0);
+    const orbitR = 38 + (i >= 2 ? 12 : 0);
+    const fx = px + Math.cos(sideAngle + Math.sin(clock * 1.8 + i) * 0.22) * orbitR;
+    const fy = py + Math.sin(sideAngle + Math.sin(clock * 1.8 + i) * 0.22) * orbitR;
+    drawPetShape(ctx, fx, fy, 11, pt.species, clock + i * 1.7);
+  }
+}
+
+const WHEEL_SLICES = [
+  { tier: 1, col: '#ff2e93', label: 'COMMON' },
+  { tier: 2, col: '#2b7cff', label: 'UNCOMMON' },
+  { tier: 1, col: '#8a4fff', label: 'COMMON' },
+  { tier: 3, col: '#00c9a7', label: 'RARE' },
+  { tier: 1, col: '#ff5c9e', label: 'COMMON' },
+  { tier: 2, col: '#00d8ff', label: 'UNCOMMON' },
+  { tier: 4, col: '#ffb800', label: 'EPIC' },
+  { tier: 1, col: '#7b2fff', label: 'COMMON' },
+  { tier: 2, col: '#00b87c', label: 'UNCOMMON' },
+  { tier: 3, col: '#ff8a00', label: 'RARE' },
+  { tier: 1, col: '#ff6ba8', label: 'COMMON' },
+  { tier: 2, col: '#00e5ff', label: 'UNCOMMON' },
+  { tier: 5, col: '#ff9500', label: 'LEGEND' },
+  { tier: 1, col: '#7c3aed', label: 'COMMON' },
+  { tier: 3, col: '#00c27a', label: 'RARE' },
+  { tier: 6, col: '#ff1f5a', label: 'MYTHIC' }
+];
+let petShopTab = 'wheel', wheelAngle = 0, wheelSpinning = false, lastHatchedPet = null, wheelRaf = 0;
+
+function drawNeonWheel(cvW, angle) {
+  if (!cvW) return;
+  const sz = 330;
+  if (cvW.width !== sz * dpr) { cvW.width = sz * dpr; cvW.height = sz * dpr; }
+  const g = cvW.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, sz, sz);
+  const cx = sz / 2, cy = sz / 2, R = sz * 0.44, n = WHEEL_SLICES.length, step = TAU / n;
+
+  g.save();
+  g.beginPath(); g.arc(cx, cy, R + 7, 0, TAU);
+  g.fillStyle = '#070b1e'; g.fill();
+  g.shadowColor = '#b026ff'; g.shadowBlur = 18;
+  g.strokeStyle = '#d8b4fe'; g.lineWidth = 6; g.stroke();
+  g.restore();
+
+  g.save();
+  g.translate(cx, cy);
+  g.rotate(angle);
+  for (let i = 0; i < n; i++) {
+    const sl = WHEEL_SLICES[i], a0 = i * step, a1 = a0 + step;
+    g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, R, a0, a1); g.closePath();
+    g.fillStyle = sl.col; g.fill();
+    g.strokeStyle = 'rgba(255, 255, 255, 0.9)'; g.lineWidth = 1.6; g.stroke();
+    g.save();
+    g.rotate(a0 + step / 2);
+    g.textAlign = 'right'; g.textBaseline = 'middle';
+    g.fillStyle = '#ffffff'; g.font = '900 10px ui-monospace, Menlo, monospace';
+    g.shadowColor = 'rgba(0,0,0,0.9)'; g.shadowBlur = 4;
+    const ti = PET_TIERS[sl.tier];
+    const lbl = curLang === 'vi' ? ti.vi.toUpperCase().slice(0, 8) : sl.label;
+    g.fillText(lbl, R - 12, 0);
+    g.restore();
+  }
+  g.restore();
+
+  g.save();
+  g.shadowColor = '#00f0ff'; g.shadowBlur = 14;
+  g.fillStyle = '#ffffff'; g.strokeStyle = '#0b1024'; g.lineWidth = 3;
+  g.beginPath(); g.arc(cx, cy, 22, 0, TAU); g.fill(); g.stroke();
+  g.shadowBlur = 0; g.fillStyle = '#0b1024'; g.font = '900 11px ui-monospace, Menlo, monospace';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText('★', cx, cy + 0.5);
+  g.restore();
+
+  g.save();
+  g.shadowColor = '#ff3b5c'; g.shadowBlur = 12;
+  g.fillStyle = '#ff3b5c'; g.strokeStyle = '#ffffff'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(cx, cy - R + 12); g.lineTo(cx - 10, cy - R - 11); g.lineTo(cx + 10, cy - R - 11); g.closePath();
+  g.fill(); g.stroke();
+  g.restore();
+}
+
+function spinPetWheel() {
+  if (wheelSpinning) return;
+  if (prog.pets.length >= PET_INV_MAX) {
+    toast(curLang === 'vi' ? 'Túi thú cưng đã đầy! Hãy bán bớt trước khi quay.' : 'Pet inventory is full! Sell a pet before spinning.');
+    return;
+  }
+  if (stars < PET_SPIN_COST) {
+    toast(curLang === 'vi' ? 'Không đủ sao!' : 'Not enough stars!');
+    return;
+  }
+  stars -= PET_SPIN_COST; saveShop(); updateStarsUI();
+  wheelSpinning = true;
+  const spinBtn = $('petSpinBtn');
+  if (spinBtn) spinBtn.disabled = true;
+
+  const weights = WHEEL_SLICES.map(sl => (PET_TIERS[sl.tier] || PET_TIERS[1]).w);
+  let r = Math.random() * weights.reduce((a, b) => a + b, 0), winIdx = 0;
+  for (let i = 0; i < weights.length; i++) { if ((r -= weights[i]) < 0) { winIdx = i; break; } }
+  const n = WHEEL_SLICES.length, step = TAU / n;
+  const targetMod = ((-Math.PI / 2 - (winIdx + 0.5) * step) % TAU + TAU) % TAU;
+  const startAngle = wheelAngle;
+  const curMod = ((startAngle % TAU) + TAU) % TAU;
+  const deltaMod = ((targetMod - curMod) + TAU) % TAU;
+  const totalSpin = TAU * (6 + Math.floor(Math.random() * 3)) + deltaMod + (Math.random() - 0.5) * step * 0.55;
+  const dur = 4000, t0 = performance.now();
+  let lastTickSlice = -1;
+
+  function anim(now) {
+    const k = Math.min(1, (now - t0) / dur);
+    const ease = 1 - Math.pow(1 - k, 3.2);
+    wheelAngle = startAngle + totalSpin * ease;
+    const cvW = $('petWheelCv');
+    if (cvW) drawNeonWheel(cvW, wheelAngle);
+    const curSlice = Math.floor(((((-Math.PI / 2 - wheelAngle) % TAU) + TAU) % TAU) / step);
+    if (curSlice !== lastTickSlice) { lastTickSlice = curSlice; Sound.sfx('gem'); }
+    if (k < 1) {
+      wheelRaf = requestAnimationFrame(anim);
+    } else {
+      wheelSpinning = false;
+      const landedIdx = Math.floor(((((-Math.PI / 2 - wheelAngle) % TAU) + TAU) % TAU) / step) % n;
+      const tier = WHEEL_SLICES[landedIdx].tier;
+      const pet = makePet(tier, null, 1);
+      lastHatchedPet = pet;
+      givePet(pet, curLang === 'vi' ? 'Bạn quay trúng' : 'You hatched');
+      Sound.sfx('level');
+      if (metaKind === 'petshop') renderMeta();
+    }
+  }
+  wheelRaf = requestAnimationFrame(anim);
+}
+
+function renderPetShop(body) {
+  $('metaTitle').textContent = curLang === 'vi' ? 'CỬA HÀNG THÚ CƯNG' : 'PET SHOP';
+  const top = document.createElement('div');
+  top.className = 'shop-balance';
+  top.innerHTML = STAR_SVG;
+  top.append(' ' + stars + (curLang === 'vi' ? ' sao' : ' stars'));
+  body.appendChild(top);
+
+  const tabs = document.createElement('div');
+  tabs.className = 'pet-tabs';
+  const bWheel = document.createElement('button');
+  bWheel.className = 'pet-tab' + (petShopTab === 'wheel' ? ' on' : '');
+  bWheel.textContent = curLang === 'vi' ? '🎡 Vòng Quay May Mắn' : '🎡 Lucky Wheel';
+  bWheel.addEventListener('click', () => { if (!wheelSpinning) { petShopTab = 'wheel'; renderMeta(); } });
+  const bInv = document.createElement('button');
+  bInv.className = 'pet-tab' + (petShopTab === 'inv' ? ' on' : '');
+  bInv.textContent = (curLang === 'vi' ? '🐾 Kho Thú Cưng' : '🐾 Pet Inventory') + ' (' + prog.pets.length + '/' + PET_INV_MAX + ')';
+  bInv.addEventListener('click', () => { if (!wheelSpinning) { petShopTab = 'inv'; renderMeta(); } });
+  tabs.append(bWheel, bInv);
+  body.appendChild(tabs);
+
+  if (petShopTab === 'wheel') {
+    const stage = document.createElement('div');
+    stage.className = 'wheel-stage';
+    const wrap = document.createElement('div');
+    wrap.className = 'wheel-wrap';
+    const cvW = document.createElement('canvas');
+    cvW.id = 'petWheelCv';
+    wrap.appendChild(cvW);
+    stage.appendChild(wrap);
+
+    const spinBtn = document.createElement('button');
+    spinBtn.id = 'petSpinBtn';
+    spinBtn.className = 'btn wheel-spin-btn';
+    spinBtn.disabled = wheelSpinning || stars < PET_SPIN_COST;
+    spinBtn.textContent = (curLang === 'vi' ? 'QUAY THÚ CƯNG · ' : 'SPIN PET · ') + PET_SPIN_COST + ' ★';
+    spinBtn.addEventListener('click', spinPetWheel);
+    stage.appendChild(spinBtn);
+
+    const odds = document.createElement('div');
+    odds.className = 'pet-odds';
+    for (let t = 1; t <= 6; t++) {
+      const ti = PET_TIERS[t];
+      const sp = document.createElement('span');
+      sp.style.color = ti.color;
+      sp.textContent = (curLang === 'vi' ? ti.vi : ti.name) + ' ' + ti.w + '%';
+      odds.appendChild(sp);
+    }
+    stage.appendChild(odds);
+
+    if (lastHatchedPet) {
+      const pt = lastHatchedPet, ti = petTier(pt);
+      const res = document.createElement('div');
+      res.className = 'wheel-result';
+      res.style.borderColor = ti.color;
+      const ic = document.createElement('canvas');
+      ic.width = 64; ic.height = 64;
+      drawPetShape(ic.getContext('2d'), 32, 32, 20, pt.species, 0);
+      const info = document.createElement('div');
+      info.style.flex = '1';
+      const ttl = document.createElement('b');
+      ttl.style.color = ti.color; ttl.style.display = 'block';
+      ttl.textContent = petName(pt);
+      const sub = document.createElement('small');
+      sub.style.color = '#cfe8ff';
+      sub.textContent = petStatText(pt);
+      info.append(ttl, sub);
+      const eqBtn = mbtn(curLang === 'vi' ? 'Xem Kho' : 'Open Bag', true, () => { petShopTab = 'inv'; renderMeta(); });
+      res.append(ic, info, eqBtn);
+      stage.appendChild(res);
+    }
+    body.appendChild(stage);
+    requestAnimationFrame(() => drawNeonWheel(cvW, wheelAngle));
+  } else {
+    const eq = equippedPets(), eqIds = eq.map(x => x.id);
+    const h1 = document.createElement('div');
+    h1.className = 'shop-section';
+    h1.textContent = (curLang === 'vi' ? 'ĐANG DÙNG ' : 'EQUIPPED ') + eq.length + '/' + petSlots();
+    body.appendChild(h1);
+
+    const addPetRow = (pt, worn) => {
+      const ti = petTier(pt);
+      const row = document.createElement('div');
+      row.className = 'mrow';
+      const left = document.createElement('div');
+      left.className = 'pet-left';
+      left.appendChild(makePetIconCanvas(pt.species, 44));
+      const txt = document.createElement('div');
+      const b = document.createElement('b');
+      b.style.color = ti.color;
+      b.textContent = petName(pt);
+      const sm = document.createElement('small');
+      sm.textContent = petStatText(pt) + (pt.lvl >= PET_MAX_LVL ? (curLang === 'vi' ? ' · Cấp tối đa' : ' · MAX LV') : '');
+      txt.append(b, sm);
+      left.appendChild(txt);
+
+      const act = document.createElement('div');
+      act.className = 'act';
+      act.style.display = 'flex'; act.style.gap = '0.35rem'; act.style.flexWrap = 'wrap';
+      const upCost = petUpgradeCost(pt);
+      if (pt.lvl < PET_MAX_LVL) {
+        act.appendChild(mbtn((curLang === 'vi' ? 'Nâng ' : 'Up ') + upCost + '★', stars >= upCost, () => {
+          if (stars < upCost || pt.lvl >= PET_MAX_LVL) return;
+          stars -= upCost; pt.lvl++;
+          saveShop(); saveProg(); updateStarsUI();
+          if (me) { regear(me); updateHUD(true); }
+          Sound.sfx('level');
+          toast((curLang === 'vi' ? 'Đã nâng cấp: ' : 'Upgraded: ') + petName(pt));
+          renderMeta();
+        }));
+      } else {
+        act.appendChild(mbtn('MAX', false));
+      }
+      if (worn) {
+        act.appendChild(mbtn(curLang === 'vi' ? 'Tháo' : 'Unequip', true, () => {
+          prog.equipPets = prog.equipPets.filter(id => id !== pt.id);
+          saveProg();
+          if (me) { regear(me); updateHUD(true); }
+          renderMeta();
+        }));
+      } else {
+        act.appendChild(mbtn(curLang === 'vi' ? 'Dùng' : 'Equip', eq.length < petSlots(), () => {
+          prog.equipPets = eqIds.concat(pt.id);
+          saveProg();
+          if (me) { regear(me); updateHUD(true); }
+          renderMeta();
+        }));
+        const sellP = petSellPrice(pt);
+        act.appendChild(mbtn((curLang === 'vi' ? 'Bán ' : 'Sell ') + sellP + '★', true, () => {
+          prog.pets = prog.pets.filter(x => x.id !== pt.id);
+          addStars(sellP); saveProg(); updateStarsUI(); renderMeta();
+        }));
+      }
+      row.append(left, act);
+      body.appendChild(row);
+    };
+
+    if (!eq.length) {
+      mrow(
+        curLang === 'vi' ? 'Chưa trang bị thú cưng nào' : 'No pets equipped',
+        curLang === 'vi' ? 'Quay thú cưng ở Vòng Quay May Mắn rồi bấm Dùng để mang theo bên cạnh.' : 'Spin pets on the Lucky Wheel then tap Equip to bring them into battle.',
+        null, 'locked'
+      );
+    }
+    for (const pt of eq) addPetRow(pt, true);
+
+    const h2 = document.createElement('div');
+    h2.className = 'shop-section';
+    h2.textContent = (curLang === 'vi' ? 'KHO THÚ CƯNG ' : 'PET INVENTORY ') + prog.pets.length + '/' + PET_INV_MAX;
+    body.appendChild(h2);
+
+    const rest = prog.pets.filter(x => !eqIds.includes(x.id)).sort((a, b) => b.tier - a.tier || b.lvl - a.lvl);
+    if (!rest.length) {
+      mrow(
+        curLang === 'vi' ? 'Kho đang trống' : 'Inventory empty',
+        curLang === 'vi' ? 'Quay thêm thú cưng hoặc nhập Gift Code để nhận thú cưng mới!' : 'Spin the Lucky Wheel or redeem Pet Gift Codes to collect more pets!',
+        null, 'locked'
+      );
+    }
+    for (const pt of rest) addPetRow(pt, false);
+  }
+}
+
+Object.assign(CODES, {
+  PETCOMMON:   { text: 'Free Common Pet!',        give: () => { givePet(makePet(1), 'Gift Pet'); } },
+  PETUNCOMMON: { text: 'Free Uncommon Pet!',      give: () => { givePet(makePet(2), 'Gift Pet'); } },
+  PETRARE:     { text: 'Free Rare Pet!',          give: () => { givePet(makePet(3), 'Gift Pet'); } },
+  PETEPIC:     { text: 'Free Epic Pet!',          give: () => { givePet(makePet(4), 'Gift Pet'); } },
+  PETLEGEND:   { text: 'Free Legendary Pet!',     give: () => { givePet(makePet(5), 'Gift Pet'); } },
+  PETMYTHIC:   { text: 'Free Mythic Pet!',        give: () => { givePet(makePet(6), 'Gift Pet'); } },
+  PETBOX:      { text: '3 Rare-to-Mythic Pets!',  give: () => { for (let i = 0; i < 3; i++) givePet(makePet(3 + Math.floor(Math.random() * 4)), 'Pet Box'); } },
+  PETSLOT3:    { text: 'Equip up to 3 pets!',     give: () => { prog.petSlots = Math.max(petSlots(), 3); } },
+  PETSLOT4:    { text: 'Equip up to 4 pets!',     give: () => { prog.petSlots = Math.max(petSlots(), 4); } },
+  PETSLOT5:    { text: 'Equip up to 5 pets!',     give: () => { prog.petSlots = Math.max(petSlots(), 5); } },
+  PETMAX:      { text: 'Equipped pets upgraded to Lv.10!', again: () => equippedPets().some(x => x.lvl < PET_MAX_LVL), give: () => { for (const pt of equippedPets()) pt.lvl = PET_MAX_LVL; if (me) regear(me); } },
+  PETSTARS:    { text: '3,000 stars for Pet Shop!', give: () => { addStars(3000); } }
+});
+
+// =========================================================================
+// 100% FULL VIETNAMESE / ENGLISH LOCALIZATION ENGINE
+// (Language button ALWAYS stays "Tiếng Việt / English")
+// =========================================================================
+const CLASSES_VI = {
+  hunter:  { name: 'Thợ Săn',       desc: 'Bắn tên tầm xa sát thương rất cao. Giữ khoảng cách và tiêu diệt từng mục tiêu.' },
+  warrior: { name: 'Chiến Binh',    desc: 'Cứng cáp và cận chiến. Khởi đầu chậm nhưng về sau là chiến binh mạnh nhất.' },
+  druid:   { name: 'Pháp Sư Rừng',  desc: 'Triệu hồi sói linh hồn và gọi bão tố từ thiên nhiên.' },
+  paladin: { name: 'Hiệp Sĩ Thánh', desc: 'Tự động hồi máu cho người dưới 80% HP (ưu tiên yếu nhất), tăng sát thương đội và bảo vệ bất tử.' },
+  fallen:  { name: 'Kẻ Sa Ngã',     desc: 'Chiến binh mang sức mạnh quỷ dữ. Chém bán nguyệt nhanh, phân thân bóng tối và hóa quỷ bắn xa. Máu rất thấp.' }
+};
+
+const INTRO_VI = {
+  ghoul: ['Quỷ Ăn Thịt', 'Liên tục tự hồi máu. Hãy tiêu diệt nhanh!'],
+  archer: ['Xạ Thủ Quỷ', 'Giữ khoảng cách và bắn 3 mũi tên cùng lúc.'],
+  banshee: ['Ma Nữ Banshee', 'Gào thét khi bạn lại gần khiến bạn bị làm chậm.'],
+  scorpion: ['Bọ Cạp Quỷ', 'Rất nhanh. Đòn chích của nó làm chậm bạn.'],
+  elite: ['Quỷ Tinh Anh', 'Quỷ hoàng kim khổng lồ với lượng máu cực lớn.'],
+  totem: ['Cột Vật Tổ Quỷ', 'Cường hóa mọi con quỷ xung quanh. Hãy phá hủy nó!'],
+  goblin: ['Yêu Tinh Kho Báu', 'Chạy trốn cùng kho báu. Hãy đuổi bắt nó!'],
+  runner: ['Kẻ Chạy Nhanh', 'Nhỏ và nhanh nhẹn. Yếu khi đi lẻ, nguy hiểm khi đi bầy.'],
+  charger: ['Quỷ Húc', 'Dừng lại phát sáng vàng rồi lao thẳng vào bạn. Hãy né sang một bên!'],
+  brute: ['Quỷ Đồ Tể', 'To lớn, chậm chạp và cực nhiều máu. Rất khó đẩy lùi.'],
+  splitter: ['Quỷ Phân Tách', 'Khi chết sẽ tách thành hai con quỷ nhỏ.'],
+  wisp: ['Linh Hồn Lửa', 'Giữ khoảng cách và bắn cầu năng lượng xanh vào bạn.'],
+  necro: ['Pháp Sư Tử Thần', 'Đứng từ xa và triệu hồi bầy quỷ nhỏ xung quanh.'],
+  boss: ['Trùm Vực Thẳm', 'Xuất hiện mỗi 2 phút. Máu cực dày. Thưởng 5 sao.'],
+  king: ['Quỷ Vương', 'Xuất hiện mỗi 5 phút cùng binh đoàn. Bắn vòng lửa và gọi quỷ. Thưởng 15 sao.'],
+  golem: ['Golem Đá', 'Rất chậm, cực trâu. Gần như miễn nhiễm đẩy lùi.'],
+  bat: ['Dơi Vực Thẳm', 'Nhỏ và bay zích-zắc cực nhanh. Rất khó bắn trúng.'],
+  bomber: ['Quỷ Cảm Tử', 'Chạy tới gần và phát nổ. Hãy hạ nó từ xa!'],
+  shade: ['Bóng Ma', 'Cứ vài giây lại dịch chuyển tức thời áp sát bạn.'],
+  champ: ['CHIẾN THẦN ĐỊA NGỤC', 'Mỗi 15 phút. Ném cầu lửa, tạo vòng đỏ phát nổ dưới chân và bùng nổ bão lửa. Thưởng 25 sao.'],
+  hound: ['Chó Săn Địa Ngục', 'Săn mồi theo bầy 3 con. Di chuyển cực nhanh.'],
+  warlock: ['Thuật Sĩ Hắc Ám', 'Đứng xa nguyền rủa mặt đất dưới chân bạn. Né trước khi nổ!'],
+  titan: ['Người Khổng Lồ', 'Một ngọn núi biết đi. Dậm đất gây choáng xung quanh. Máu cực lớn.'],
+  leecher: ['Kẻ Hút Hồn', 'Đứng yên và nối tia hút hồn trong phạm vi 50% của Wisp. Phải thoát ra hoặc hạ nó trong 5 giây, không sẽ chết ngay!'],
+  herald: ['Sứ Giả Vực Thẳm', 'Đi cùng bầy quỷ và cường hóa máu, sát thương, tốc độ cho quỷ và trùm xung quanh!'],
+  void_warden: ['Cai Ngục Hư Không', 'Kẻ canh gác cốt truyện bị vết nứt tha hóa.'],
+  abyss_knight: ['Kỵ Sĩ Vực Thẳm', 'Đội tiên phong bọc giáp của Quỷ Vương.'],
+  astral_sentinel: ['Vệ Binh Tinh Tú', 'Cỗ máy thiên giới bị tha hóa ở thánh điện cuối cùng.']
+};
+
+const VI_EXACT = {
+  'Start': 'Bắt đầu', 'Multiplayer': 'Chơi mạng', 'World': 'Thế giới', 'Research': 'Nghiên cứu',
+  'Achievements': 'Thành tựu', 'Skins': 'Trang phục', 'Gear': 'Trang bị', 'Codes': 'Mã quà tặng',
+  'Playground': 'Sân tập', 'Help': 'Trợ giúp', 'Pet Shop': 'Cửa hàng thú cưng',
+  'Leaderboard': 'Bảng xếp hạng', 'LEADERBOARD': 'BẢNG XẾP HẠNG', 'WORLD LEADERBOARD': 'BẢNG XẾP HẠNG THẾ GIỚI',
+  'TAP FOR TOP 10 ▸': 'CHẠM XEM TOP 10 ▸', 'TOP 10': 'TOP 10', 'Close': 'Đóng', 'Back': 'Quay lại', '◂ Back': '◂ Quay lại',
+  '◂ All games': '◂ Tất cả trò chơi', 'Leave': 'Rời đi', 'Paused': 'Tạm dừng', 'Resume': 'Tiếp tục',
+  '⌂ ABYSS menu': '⌂ Menu ABYSS', 'ABYSS menu': 'Menu ABYSS', 'You fell': 'Bạn đã gục ngã',
+  'Play again': 'Chơi lại', 'Retry together': 'Chơi lại cùng nhau', 'Retry level': 'Thử lại màn',
+  '▶ Watch an ad to revive': '▶ Xem quảng cáo để hồi sinh', 'Level up!': 'Lên cấp!',
+  'Choose one skill': 'Chọn một kỹ năng', 'SKINS': 'TRANG PHỤC', 'NEW DEMON': 'QUÁI VẬT MỚI',
+  'Co-op': 'Hợp tác', 'Versus': 'Đối kháng', 'Create room': 'Tạo phòng', 'Join room': 'Vào phòng',
+  'Copy invite link': 'Sao chép link mời', 'Team A': 'Đội A', 'Team B': 'Đội B',
+  'ROOM CODE': 'MÃ PHÒNG', 'TIME': 'THỜI GIAN', 'LEVEL': 'CẤP ĐỘ', 'KILLS': 'TIÊU DIỆT',
+  'Victory!': 'Chiến thắng!', 'Defeat': 'Thất bại', 'Leave room': 'Rời phòng',
+  'RESEARCH': 'NGHIÊN CỨU', 'WORLDS': 'THẾ GIỚI', 'GEAR': 'TRANG BỊ', 'ENHANCE': 'CƯỜNG HÓA',
+  'GIFT CODES': 'MÃ QUÀ TẶNG', 'PLAYGROUND': 'SÂN TẬP', 'HOW TO PLAY': 'HƯỚNG DẪN CHƠI', 'PLAY': 'CHƠI',
+  'Continue': 'Tiếp tục', 'Select': 'Chọn', 'PLAYING': 'ĐANG CHƠI', 'MAX': 'TỐI ĐA',
+  'IN PROGRESS': 'ĐANG TIẾN HÀNH', 'Redeem': 'Đổi mã', 'Wear': 'Đeo', 'Take off': 'Tháo',
+  'Enhance': 'Cường hóa', 'No scores yet': 'Chưa có điểm nào', 'EQUIPPED': 'ĐANG DÙNG', 'USE': 'DÙNG',
+  'TAP AGAIN TO BUY': 'CHẠM LẦN NỮA ĐỂ MUA', 'COLORS': 'MÀU CƠ BẢN', 'ABYSS COLORS': 'MÀU VỰC THẲM',
+  'SPECIAL': 'ĐẶC BIỆT', 'WORLD SKINS': 'TRANG PHỤC THẾ GIỚI', 'LEGENDARY': 'HUYỀN THOẠI',
+  'Empty': 'Trống', 'Nothing worn yet': 'Chưa đeo trang bị nào', 'ADD GEMS FOR A BETTER CHANCE': 'THÊM NGỌC ĐỂ TĂNG TỈ LỆ THÀNH CÔNG',
+  'Reset keys': 'Đặt lại phím', 'Move': 'Di chuyển', 'Attack': 'Tấn công', 'Level up': 'Lên cấp',
+  'Ultimate': 'Chiêu cuối', 'Druid form': 'Dạng Pháp Sư Rừng', 'Nova Bomb': 'Bom Nova', 'Pause': 'Tạm dừng',
+  'Sound': 'Âm thanh', 'Tip': 'Mẹo', 'All': 'Tất cả', 'Refresh (clear the field)': 'Làm mới (xóa sạch quái)',
+  'End all events': 'Kết thúc mọi sự kiện', 'Back to the game': 'Quay lại trận đấu', 'Use my real research levels': 'Dùng cấp nghiên cứu thật của tôi',
+  'The Demon Legion is pouring out of the Abyss. Your orb attacks on its own: just move to survive. Every level up, pick a new skill.':
+    'Binh đoàn quỷ đang tràn ra từ Vực Thẳm. Quả cầu của bạn tự động tấn công: chỉ cần di chuyển để sinh tồn. Mỗi khi lên cấp, chọn một kỹ năng mới.',
+  'Your nickname and scores appear on a public online leaderboard. Do not use your real name.':
+    'Biệt danh và điểm số của bạn sẽ hiển thị trên bảng xếp hạng công khai. Đừng dùng tên thật.',
+  'Play with up to 3 friends. Your class is the one you picked on the main screen.':
+    'Chơi cùng tối đa 3 người bạn. Nhân vật của bạn là hệ bạn đã chọn ở màn hình chính.',
+  'Colors cost 100 stars, specials 200. The first 8 colors and your stars are shared with LEVEL+ and MAZE+.':
+    'Màu thường giá 100 sao, đặc biệt 200 sao. 8 màu đầu và số sao dùng chung với LEVEL+ và MAZE+.',
+  'WASD or the arrow keys. On a phone or tablet: drag anywhere on the screen.':
+    'Phím WASD hoặc mũi tên. Trên điện thoại/máy tính bảng: kéo ngón tay ở bất cứ đâu.',
+  'Your orb attacks by itself. Just stay alive!': 'Quả cầu tự động tấn công. Chỉ cần sống sót!',
+  'Pick a skill with 1, 2, 3 or tap a card.': 'Chọn kỹ năng bằng phím 1, 2, 3 hoặc chạm vào thẻ.',
+  'Unlocks at level 6 (stronger at 12 and 18). On touch screens: the round button on the right.':
+    'Mở khóa ở cấp 6 (mạnh hơn ở cấp 12 và 18). Trên màn hình cảm ứng: nút tròn bên phải.',
+  'Druid only, during the ultimate: switch Werewolf / Werebear.': 'Chỉ dành cho Pháp Sư Rừng khi bật chiêu cuối: đổi dạng Người Sói / Người Gấu.',
+  'After you research it: a huge blast around you.': 'Sau khi nghiên cứu: vụ nổ khổng lồ xung quanh bạn.',
+  'Esc also pauses.': 'Phím Esc cũng có thể tạm dừng.',
+  'Turn music and sound on or off.': 'Bật hoặc tắt nhạc và hiệu ứng âm thanh.',
+  'Tap a key button, then press the new key. Taking a key that is in use swaps the two.':
+    'Nhấn vào nút phím, sau đó bấm phím mới. Chọn phím đang dùng sẽ hoán đổi hai phím.',
+  'Share this code with your friends. Press Start when everyone is in.': 'Chia sẻ mã này cho bạn bè. Bấm Bắt đầu khi mọi người đã vào đủ.',
+  'Waiting for the host to start…': 'Đang chờ chủ phòng bắt đầu…',
+  'Press Retry to play again with the same team.': 'Bấm Chơi lại để đấu ván mới với cùng đội.',
+  'The new run starts when everyone presses Retry.': 'Ván mới sẽ bắt đầu khi tất cả mọi người bấm Chơi lại.',
+  'Waiting for your team to pick their skills…': 'Đang chờ đồng đội chọn kỹ năng…',
+  'You fell. A teammate can revive you by standing on you for 3.5 seconds.': 'Bạn đã gục. Đồng đội có thể hồi sinh bạn bằng cách đứng cạnh trong 3.5 giây.',
+  'Switch interface & Story dialogue language / Đổi ngôn ngữ giao diện & cốt truyện': 'Chuyển đổi 100% ngôn ngữ giao diện, kỹ năng, quái vật và cốt truyện'
+};
+
+function translateStrVi(s) {
+  if (!s || curLang !== 'vi') return s;
+  const trimmed = s.trim();
+  if (!trimmed) return s;
+  if (VI_EXACT[trimmed]) return s.replace(trimmed, VI_EXACT[trimmed]);
+  let out = trimmed;
+  out = out
+    .replace(/^World: (.+)$/, 'Thế giới: $1')
+    .replace(/^Research · (.+)$/, 'Nghiên cứu · $1')
+    .replace(/^Daily challenge: (.+) · \+(\d+) stars$/, 'Nhiệm vụ ngày: $1 · +$2 sao')
+    .replace(/^✓ Daily challenge done: (.+)$/, '✓ Đã xong nhiệm vụ ngày: $1')
+    .replace(/^ACHIEVEMENTS (\d+\/\d+)$/, 'THÀNH TỰU $1')
+    .replace(/^WEARING (\d+\/\d+)$/, 'ĐANG ĐEO $1')
+    .replace(/^INVENTORY (\d+\/\d+)$/, 'TÚI ĐỒ $1')
+    .replace(/^Codes used: (\d+)$/, 'Số mã đã dùng: $1')
+    .replace(/^Best: (.+)$/, 'Tốt nhất: $1')
+    .replace(/^Retry level (\d+)$/, 'Thử lại màn $1')
+    .replace(/^New game \((.+)\)$/, 'Chơi mới ($1)')
+    .replace(/^Start playground \((.+)\)$/, 'Vào Sân tập ($1)')
+    .replace(/^Sell (\d+)$/, 'Bán $1')
+    .replace(/^Any class · key (\d+)$/, 'Mọi hệ · phím $1')
+    .replace(/^(.+) skill · key (\d+)$/, 'Kỹ năng $1 · phím $2')
+    .replace(/^Paused by (.+)$/, 'Tạm dừng bởi $1')
+    .replace(/^Slot (\d+): free · pick something to research$/, 'Ô $1: trống · chọn một mục để nghiên cứu')
+    .replace(/^Slot (\d+): (.+) Lv (\d+) · (.+) left$/, 'Ô $1: $2 Cấp $3 · còn $4')
+    .replace(/^You have (\d+)$/, 'Bạn đang có $1')
+    .replace(/^Locked: survive 15:30 in (.+)$/, 'Đã khóa: sống sót 15:30 tại $1')
+    .replace(/^Defeat (\d+)$/, 'Hạ $1')
+    .replace(/^No cooldowns: (ON|OFF)$/, (_, v) => 'Không hồi chiêu: ' + (v === 'ON' ? 'BẬT' : 'TẮT'))
+    .replace(/^Invulnerable: (ON|OFF)$/, (_, v) => 'Bất tử: ' + (v === 'ON' ? 'BẬT' : 'TẮT'))
+    .replace(/^No demons: (ON|OFF)$/, (_, v) => 'Tắt quái vật: ' + (v === 'ON' ? 'BẬT' : 'TẮT'))
+    .replace(/^PvP: (ON|OFF)$/, (_, v) => 'PvP: ' + (v === 'ON' ? 'BẬT' : 'TẮT'))
+    .replace(/^Mode: (Story|Survival)$/, (_, v) => 'Chế độ: ' + (v === 'Story' ? 'Cốt truyện' : 'Sinh tồn'))
+    .replace(/^Co-op Mode: (.+)$/, 'Chế độ Co-op: $1')
+    .replace(/^Stage (\d+) ▸$/, 'Màn $1 ▸')
+    .replace(/^ stars$/, ' sao')
+    .replace(/(\d+) stars/g, '$1 sao');
+  if (out === trimmed) {
+    out = out
+      .replace(/\bHealing Light\b/g, 'Ánh Sáng Chữa Lành')
+      .replace(/\bRestore 40% of your HP\.\b/g, 'Hồi 40% máu tối đa của bạn.')
+      .replace(/\bEvery level up\b/g, 'Mỗi khi lên cấp')
+      .replace(/\bAttack speed\b/gi, 'Tốc đánh')
+      .replace(/\bMove speed\b/gi, 'Tốc chạy')
+      .replace(/\bmax HP\b/gi, 'máu tối đa')
+      .replace(/\bHP per second\b/gi, 'máu mỗi giây')
+      .replace(/\bdamage\b/gi, 'sát thương')
+      .replace(/\barmor\b/gi, 'giáp')
+      .replace(/\bdemons\b/gi, 'quái vật')
+      .replace(/\bdemon\b/gi, 'quái vật')
+      .replace(/\bbosses\b/gi, 'trùm')
+      .replace(/\bboss\b/gi, 'trùm');
+  }
+  return s.replace(trimmed, out);
+}
+
+let _translatingDom = false;
+function translateDomTree(root) {
+  if (_translatingDom || !root) return;
+  _translatingDom = true;
+  try {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    let node;
+    while ((node = walker.nextNode())) {
+      const parent = node.parentElement;
+      if (!parent) continue;
+      if (parent.closest('[data-no-i18n="1"], #roomCode, #mpChatLog, .lb-list .n, .version, .author')) continue;
+      if (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE') continue;
+      if (!node._enOrig) node._enOrig = node.nodeValue;
+      if (curLang === 'vi') {
+        const translated = translateStrVi(node._enOrig);
+        if (node.nodeValue !== translated) node.nodeValue = translated;
+      } else {
+        if (node.nodeValue !== node._enOrig) node.nodeValue = node._enOrig;
+      }
+    }
+  } finally {
+    _translatingDom = false;
+  }
+}
+
+function toggleGameLanguage() {
+  curLang = curLang === 'en' ? 'vi' : 'en';
+  try { localStorage.setItem('abyssPlusLang', curLang); } catch (e) {}
+  applyLangUI();
+  showClasses();
+  refreshMetaUI();
+  renderBoard();
+  if (!$('metaModal').classList.contains('hidden')) renderMeta();
+  if (!$('shopModal').classList.contains('hidden')) renderShop();
+  if (!$('neonDialogue').classList.contains('hidden')) renderDialogueStep();
+  translateDomTree(game);
+}
+
+function applyLangUI() {
+  const isVi = curLang === 'vi';
+  if ($('nameInput')) $('nameInput').placeholder = isVi ? 'Tên của bạn' : 'Your name';
+  if ($('codeInput')) $('codeInput').placeholder = isVi ? 'MÃ' : 'CODE';
+  if ($('mpChatInput')) $('mpChatInput').placeholder = isVi ? 'Nhập tin nhắn...' : 'Type message...';
+  if ($('mpChatSendBtn')) $('mpChatSendBtn').textContent = isVi ? 'Gửi' : 'Send';
+  if ($('cutsceneSkipBtn')) $('cutsceneSkipBtn').textContent = (isVi ? 'Bỏ qua' : 'Skip') + ' ▸▸';
+  if ($('langQuickBtn')) $('langQuickBtn').textContent = 'Tiếng Việt / English';
+  translateDomTree(game);
+}
+
+const _origShowClasses = showClasses;
+showClasses = function() {
+  _origShowClasses();
+  if (curLang === 'vi') {
+    const cards = $('classList').querySelectorAll('.cls');
+    const keys = Object.keys(CLASSES);
+    cards.forEach((b, i) => {
+      const id = keys[i], vi = CLASSES_VI[id];
+      if (!vi) return;
+      const nm = b.querySelector('b'), ds = b.querySelector('small'), bs = b.querySelector('em');
+      if (nm) nm.textContent = vi.name.toUpperCase();
+      if (ds) ds.textContent = vi.desc;
+      if (bs) bs.textContent = 'Tốt nhất: ' + fmtTime(best[id] || 0);
+    });
+  }
+};
+
+const _origShowIntroCard = showIntroCard;
+showIntroCard = function(type) {
+  _origShowIntroCard(type);
+  if (curLang === 'vi' && INTRO_VI[type]) {
+    const kEl = $('introCard').querySelector('.ic-k');
+    if (kEl) kEl.textContent = 'QUÁI VẬT MỚI';
+    $('introName').textContent = INTRO_VI[type][0];
+    $('introDesc').textContent = INTRO_VI[type][1];
+  } else {
+    const kEl = $('introCard').querySelector('.ic-k');
+    if (kEl) kEl.textContent = 'NEW DEMON';
+  }
+};
+
+const _i18nObserver = new MutationObserver(() => {
+  if (curLang === 'vi') translateDomTree(game);
+});
+_i18nObserver.observe(game, { childList: true, subtree: true });
+
+if ($('petShopBtn')) $('petShopBtn').addEventListener('click', () => { petShopTab = 'wheel'; openMeta('petshop'); });
+if ($('pausePetBtn')) $('pausePetBtn').addEventListener('click', () => { petShopTab = 'inv'; openMeta('petshop'); });
+if ($('langQuickBtn')) $('langQuickBtn').addEventListener('click', toggleGameLanguage);
+
+applyLangUI();
+showClasses();
 
 </script>
 </body>
