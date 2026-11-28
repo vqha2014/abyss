@@ -958,6 +958,53 @@ function drawGoblin(g, R) {
   g.shadowBlur = 0; g.fillStyle = '#1a1000'; g.beginPath(); g.arc(-R * 0.4, -R * 0.15, R * 0.12, 0, TAU); g.arc(0.05 * R, -R * 0.15, R * 0.12, 0, TAU); g.fill();
   g.fillStyle = '#ffd54a'; for (const [x, y] of [[0.5, 0.1], [0.7, 0.4], [0.35, 0.45]]) { g.beginPath(); g.arc(x * R, y * R, R * 0.14, 0, TAU); g.fill(); }
 }
+function drawLeecher(g, R) {
+  // Spectral Soul Leecher: dark violet cloak, floating ghostly tendrils, neon magenta crown & glowing soul-vortex eye
+  g.save();
+  g.lineJoin = 'round'; g.lineCap = 'round';
+  // Outer spectral aura
+  const aura = g.createRadialGradient(0, 0, R * 0.2, 0, 0, R * 1.45);
+  aura.addColorStop(0, 'rgba(255, 42, 212, 0.45)');
+  aura.addColorStop(0.6, 'rgba(130, 30, 220, 0.22)');
+  aura.addColorStop(1, 'rgba(255, 42, 212, 0)');
+  g.fillStyle = aura; g.beginPath(); g.arc(0, 0, R * 1.45, 0, TAU); g.fill();
+
+  // Flowing ghostly tendrils at the bottom
+  g.shadowColor = '#ff2ad4'; g.shadowBlur = R * 0.65;
+  g.fillStyle = '#180628'; g.strokeStyle = '#ff2ad4'; g.lineWidth = 2.2;
+  g.beginPath();
+  g.moveTo(0, -R * 1.25);
+  g.bezierCurveTo(R * 0.95, -R * 0.9, R * 1.05, R * 0.1, R * 0.72, R * 0.95);
+  g.lineTo(R * 0.38, R * 0.52);
+  g.lineTo(R * 0.15, R * 1.15);
+  g.lineTo(0, R * 0.68);
+  g.lineTo(-R * 0.15, R * 1.15);
+  g.lineTo(-R * 0.38, R * 0.52);
+  g.lineTo(-R * 0.72, R * 0.95);
+  g.bezierCurveTo(-R * 1.05, R * 0.1, -R * 0.95, -R * 0.9, 0, -R * 1.25);
+  g.closePath();
+  g.fill(); g.stroke();
+
+  // Side spectral ribs / sigil wings
+  g.strokeStyle = '#ff9de9'; g.lineWidth = 1.6;
+  for (const s of [-1, 1]) {
+    g.beginPath();
+    g.moveTo(s * R * 0.62, -R * 0.38);
+    g.quadraticCurveTo(s * R * 1.18, -R * 0.12, s * R * 0.92, R * 0.35);
+    g.stroke();
+  }
+
+  // Central soul-vortex eye
+  g.shadowColor = '#7df9ff'; g.shadowBlur = R * 0.7;
+  g.strokeStyle = '#7df9ff'; g.lineWidth = 2;
+  g.beginPath(); g.ellipse(0, -R * 0.12, R * 0.48, R * 0.28, 0, 0, TAU); g.stroke();
+  g.fillStyle = '#ffffff';
+  g.beginPath(); g.arc(0, -R * 0.12, R * 0.18, 0, TAU); g.fill();
+  g.fillStyle = '#ff2ad4';
+  g.beginPath(); g.arc(0, -R * 0.12, R * 0.08, 0, TAU); g.fill();
+  g.shadowBlur = 0;
+  g.restore();
+}
 function drawPortal(g, R) {
   const rg = g.createRadialGradient(0, 0, R * 0.1, 0, 0, R);
   rg.addColorStop(0, '#000000'); rg.addColorStop(0.6, '#0d2a0a'); rg.addColorStop(1, '#3dff2a');
@@ -981,6 +1028,7 @@ function buildSprites() {
     if (k === 'champ') { drawChampion(g, t.r, 0); sprites[k] = { c, size }; continue; }
     if (t.ore) { drawOre(g, t.r, t.color); sprites[k] = { c, size }; continue; }
     if (t.totem) { drawTotem(g, t.r); sprites[k] = { c, size }; continue; }
+    if (t.leecher) { drawLeecher(g, t.r); sprites[k] = { c, size }; continue; }
     if (t.still) { drawPortal(g, t.r); sprites[k] = { c, size }; continue; }
     if (t.goblin) { drawGoblin(g, t.r); sprites[k] = { c, size }; continue; }
     for (let i = 0; i < t.spikes * 2; i++) {
@@ -5229,7 +5277,7 @@ function moveLocal(dt) {
 }
 
 function update(dt) {
-  if (state === S.PAUSED || state === S.LEVELUP) return;
+  if (state === S.PAUSED || state === S.LEVELUP || (typeof dialogueActive !== 'undefined' && dialogueActive) || (typeof cutsceneActive !== 'undefined' && cutsceneActive)) return;
   clock += dt;
   for (const q of particles) { q.x += q.vx; q.y += q.vy; q.vx *= 0.96; q.vy *= 0.96; q.life -= q.decay; }
   particles = particles.filter(q => q.life > 0);
@@ -5437,6 +5485,7 @@ function update(dt) {
       if (e.type === 'goblin') sp = d < 520 ? -e.speed : e.speed * 0.2;
       if (!tb && e.type === 'archer' && d < 300) sp = -e.speed * 0.6;
       if (e.type === 'champ') sp = e.charging > 0 ? 0 : d < 320 ? -e.speed * 0.6 : sp;
+      if (e.type === 'leecher' && e.leechTarget && !e.leechTarget.dead) sp = 0;
       if (tb && md < e.r + 14) sp = 0;
       if (sp > 0 && inLiquid(e.x, e.y)) sp *= 0.85;
       if (e.slowT > 0) { e.slowT -= dt; sp *= 1 - (e.slowF || 0); }
@@ -6728,7 +6777,7 @@ CLASS_DMG.druid = Math.max(CLASS_DMG.druid, 1.75);
 // - herald: Aura Herald (moves & buffs HP/DMG/Speed of nearby demons & bosses like Demon Totem)
 // - Story-exclusive enemies: void_warden, abyss_knight, astral_sentinel
 Object.assign(ETYPES, {
-  leecher: { r: 16, hp: 135, speed: 0, dmg: 0, xp: 10, color: '#ff2ad4', spikes: 6, still: true, leecher: true },
+  leecher: { r: 16, hp: 135, speed: 74, dmg: 0, xp: 10, color: '#ff2ad4', spikes: 6, leecher: true },
   herald: { r: 18, hp: 220, speed: 66, dmg: 14, xp: 14, color: '#ff9d2e', spikes: 8, herald: true },
   void_warden: { r: 22, hp: 380, speed: 76, dmg: 22, xp: 18, color: '#9d6bff', spikes: 9 },
   abyss_knight: { r: 25, hp: 520, speed: 84, dmg: 28, xp: 24, color: '#ff3b5c', spikes: 10 },
@@ -6738,7 +6787,7 @@ for (const k of ['leecher', 'herald', 'void_warden', 'abyss_knight', 'astral_sen
   if (!TYPE_IDX.includes(k)) TYPE_IDX.push(k);
 }
 Object.assign(INTRO, {
-  leecher: ['Soul Leecher', 'Stands still and tethers a soul beam within 50% of Wisp range. Escape the tether or kill it within 5s, or die instantly!'],
+  leecher: ['Soul Leecher', 'Moves toward you, then stands still while draining your soul within 50% of Wisp range. Escape the beam or kill it within 5s, or die instantly!'],
   herald: ['Abyss Herald', 'Moves with the horde and empowers nearby demons and bosses with extra HP, damage, and speed!'],
   void_warden: ['Void Warden', 'Story guardian twisted by the rift.'],
   abyss_knight: ['Abyss Knight', 'Armored vanguard of the Demon King.'],
@@ -6866,11 +6915,15 @@ function drawDialogueAvatar(speakerType, accent) {
   g.restore();
 }
 
+let dialogueActive = false;
 function showNeonDialogue(lines, onDone, allowSkip = true) {
   dialogueQueue = lines || [];
   dialogueIdx = 0;
   dialogueOnDone = onDone || null;
   if (!dialogueQueue.length) { if (dialogueOnDone) dialogueOnDone(); return; }
+  dialogueActive = true;
+  stick.active = false;
+  Sound.unlock(); Sound.resume();
   $('ndSkipBtn').classList.toggle('hidden', !allowSkip);
   $('ndSkipBtn').textContent = tr('skip');
   $('ndNextBtn').textContent = tr('next');
@@ -6895,9 +6948,15 @@ function renderDialogueStep() {
   $('ndRole').style.background = item.type === 'player' ? '#0b1024' : '#991b1b';
   $('ndText').textContent = curLang === 'vi' && item.vi ? item.vi : item.en;
   drawDialogueAvatar(item.type, accent);
+  // Dialogue voice/chime sound effect
+  Sound.unlock(); Sound.resume();
+  if (item.type === 'demon_king' || item.type === 'boss' || item.side === 'right') Sound.sfx('summon');
+  else if (item.type === 'king_npc') Sound.sfx('heal');
+  else Sound.sfx('gem');
 }
 
 function closeNeonDialogue() {
+  dialogueActive = false;
   $('neonDialogue').classList.add('hidden');
   if (coop && coop.role === 'host') {
     api('/rooms/' + coop.code + '/meta', 'PATCH', { dialogue: { active: false } });
@@ -6906,7 +6965,8 @@ function closeNeonDialogue() {
   dialogueQueue = []; dialogueOnDone = null;
   if (cb) cb();
 }
-$('ndNextBtn').addEventListener('click', () => {
+$('ndNextBtn').addEventListener('click', (ev) => {
+  ev.stopPropagation();
   if (coop && coop.role === 'guest') return; // host controls story dialogue in co-op
   dialogueIdx++;
   if (dialogueIdx >= dialogueQueue.length) closeNeonDialogue();
@@ -6917,22 +6977,31 @@ $('ndNextBtn').addEventListener('click', () => {
     }
   }
 });
-$('ndSkipBtn').addEventListener('click', () => {
+$('ndSkipBtn').addEventListener('click', (ev) => {
+  ev.stopPropagation();
   if (coop && coop.role === 'guest') return;
+  Sound.sfx('hit');
   closeNeonDialogue();
 });
 
-// Opening Prologue Cutscene
+// Opening Prologue Cutscene (replayable, with audio & detailed houses)
 let cutsceneAnim = 0, cutsceneActive = false, cutsceneCb = null;
 function playStoryPrologue(onFinish) {
   cutsceneActive = true;
   cutsceneCb = onFinish;
+  Sound.unlock(); Sound.resume();
   const ov = $('cutsceneOverlay'), cvC = $('cutsceneCv'), g = cvC.getContext('2d');
   ov.classList.remove('hidden');
   let t0 = performance.now();
+  const sfxPlayed = { start: false, quake: false, rift: false, king: false };
   function frame(now) {
     if (!cutsceneActive) return;
     const t = (now - t0) / 1000;
+    if (!sfxPlayed.start) { sfxPlayed.start = true; Sound.sfx('level'); }
+    if (t >= 2.2 && !sfxPlayed.quake) { sfxPlayed.quake = true; Sound.sfx('slam'); }
+    if (t >= 2.5 && !sfxPlayed.rift) { sfxPlayed.rift = true; Sound.sfx('summon'); Sound.sfx('boss'); }
+    if (t >= 4.1 && !sfxPlayed.king) { sfxPlayed.king = true; Sound.sfx('boom'); Sound.sfx('boss'); }
+
     cvC.width = game.clientWidth * dpr;
     cvC.height = game.clientHeight * dpr;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -6945,13 +7014,98 @@ function playStoryPrologue(onFinish) {
     grad.addColorStop(0, t < 3 ? '#07142c' : '#140414');
     grad.addColorStop(1, '#04060f');
     g.fillStyle = grad; g.fillRect(0, 0, cw, ch);
-    for (let i = 0; i < 14; i++) {
-      const bw = cw / 14, bx = i * bw + 4, bh = 80 + ((i * 53) % 130);
-      g.fillStyle = t < 3 ? '#0d2244' : '#190a1e';
-      g.fillRect(bx, ch * 0.68 - bh, bw - 8, bh);
-      g.strokeStyle = t < 3 ? 'rgba(0,240,255,0.45)' : 'rgba(255,59,92,0.45)';
-      g.strokeRect(bx, ch * 0.68 - bh, bw - 8, bh);
+
+    // Ground / cobblestone street
+    const groundY = ch * 0.74;
+    g.fillStyle = t < 3 ? '#081226' : '#120614';
+    g.fillRect(0, groundY, cw, ch - groundY);
+    g.strokeStyle = t < 3 ? 'rgba(0,240,255,0.35)' : 'rgba(255,59,92,0.45)';
+    g.lineWidth = 2;
+    g.beginPath(); g.moveTo(0, groundY); g.lineTo(cw, groundY); g.stroke();
+
+    // Detailed kingdom houses (walls, pitched roofs, chimneys, glowing windows, doors)
+    const houseCount = Math.max(7, Math.min(11, Math.floor(cw / 105)));
+    const slotW = cw / houseCount;
+    for (let i = 0; i < houseCount; i++) {
+      const hw = slotW * (0.76 + ((i * 19) % 14) / 100);
+      const bx = i * slotW + (slotW - hw) * 0.5;
+      const stories = (i % 3 === 1) ? 2 : 1;
+      const bh = (stories === 2 ? 112 : 76) + ((i * 29) % 24);
+      const by = groundY - bh;
+      const roofH = 34 + ((i * 17) % 20);
+      const isCalm = t < 3;
+
+      // Chimney on some houses
+      if (i % 2 === 0) {
+        const chx = bx + hw * 0.72, chw = Math.max(8, hw * 0.12), chh = roofH * 0.75;
+        g.fillStyle = isCalm ? '#12284a' : '#260d24';
+        g.fillRect(chx, by - chh, chw, chh);
+        g.strokeStyle = isCalm ? 'rgba(0,240,255,0.35)' : 'rgba(255,59,92,0.4)';
+        g.lineWidth = 1.2;
+        g.strokeRect(chx, by - chh, chw, chh);
+      }
+
+      // House body (wall)
+      g.fillStyle = isCalm ? '#0d2244' : '#1d0b22';
+      g.fillRect(bx, by, hw, bh);
+      g.strokeStyle = isCalm ? 'rgba(0,240,255,0.55)' : 'rgba(255,59,92,0.55)';
+      g.lineWidth = 1.8;
+      g.strokeRect(bx, by, hw, bh);
+
+      // Pitched triangular roof with overhanging eaves
+      g.fillStyle = isCalm ? '#163466' : '#330c24';
+      g.beginPath();
+      g.moveTo(bx - 7, by + 2);
+      g.lineTo(bx + hw * 0.5, by - roofH);
+      g.lineTo(bx + hw + 7, by + 2);
+      g.closePath();
+      g.fill();
+      g.strokeStyle = isCalm ? '#00f0ff' : '#ff3b5c';
+      g.lineWidth = 2;
+      g.stroke();
+
+      // Arched front door
+      const dw = Math.max(12, hw * 0.22), dh = Math.min(30, bh * 0.36);
+      const dx = bx + (hw - dw) * 0.5, dy = groundY - dh;
+      g.fillStyle = isCalm ? '#071326' : '#120410';
+      g.beginPath();
+      g.moveTo(dx, groundY);
+      g.lineTo(dx, dy + dw * 0.45);
+      g.arc(dx + dw * 0.5, dy + dw * 0.45, dw * 0.5, Math.PI, 0);
+      g.lineTo(dx + dw, groundY);
+      g.closePath();
+      g.fill();
+      g.strokeStyle = isCalm ? 'rgba(125,249,255,0.6)' : 'rgba(255,120,90,0.6)';
+      g.lineWidth = 1.5;
+      g.stroke();
+
+      // Glowing windows with crossbars
+      const winCols = hw > 72 ? 2 : 1;
+      const winW = Math.max(11, Math.min(18, hw * 0.2)), winH = winW * 1.15;
+      for (let row = 0; row < stories; row++) {
+        const wy = by + 14 + row * (winH + 14);
+        if (wy + winH > dy - 6) continue;
+        for (let col = 0; col < winCols; col++) {
+          const wx = winCols === 2
+            ? bx + (col === 0 ? hw * 0.16 : hw * 0.84 - winW)
+            : bx + (hw - winW) * 0.5;
+          const flicker = isCalm ? 0.92 : (0.55 + 0.45 * Math.sin(t * 16 + i * 2 + col));
+          g.fillStyle = isCalm
+            ? `rgba(255, 224, 130, ${flicker})`
+            : `rgba(255, 110, 70, ${flicker * 0.85})`;
+          g.fillRect(wx, wy, winW, winH);
+          g.strokeStyle = isCalm ? '#0d2244' : '#1d0b22';
+          g.lineWidth = 1.4;
+          g.strokeRect(wx, wy, winW, winH);
+          // Window mullions (crossbars)
+          g.beginPath();
+          g.moveTo(wx + winW * 0.5, wy); g.lineTo(wx + winW * 0.5, wy + winH);
+          g.moveTo(wx, wy + winH * 0.5); g.lineTo(wx + winW, wy + winH * 0.5);
+          g.stroke();
+        }
+      }
     }
+
     if (t >= 2.5) {
       const rt = t - 2.5;
       const rx = cw * 0.5, ry = ch * 0.34;
@@ -7006,7 +7160,8 @@ function renderStoryEntry(body) {
   act.style.cssText = 'display:flex;gap:0.65rem;justify-content:center;margin:0.9rem 0;flex-wrap:wrap;';
   act.appendChild(mbtn(tr('continueGame'), hasSave, () => {
     closeMeta();
-    launchStoryStage(storyProg.savedStage || 1, false);
+    const sid = storyProg.savedStage || 1;
+    launchStoryStage(sid, sid === 1);
   }));
   act.appendChild(mbtn(tr('newGame'), true, () => {
     metaKind = 'story_select';
@@ -7058,7 +7213,7 @@ function renderStorySelector(body) {
       node.innerHTML = `<b>${wIdx + 1}-${st.stageInWorld}</b><small>${st.bossType ? 'BOSS: ' + st.bossType.toUpperCase() : (curLang === 'vi' ? 'Hạ ' : 'Defeat ') + st.goalKills}</small>`;
       node.addEventListener('click', () => {
         closeMeta();
-        launchStoryStage(st.id, st.id === 1 && !storyProg.seenPrologue);
+        launchStoryStage(st.id, st.id === 1);
       });
       strip.appendChild(node);
     });
@@ -7088,18 +7243,26 @@ function launchStoryStage(stageId, withPrologue) {
   storyProg.savedStage = st.id;
   storyProg.savedCls = selClass;
   saveStoryProg();
-  const begin = () => {
-    setWorld(st.world);
-    startGame();
-    storyMode = { active: true, stageId: st.id, killsAtStart: 0, bossSpawned: false, bossEntity: null, completed: false, score: 0 };
+  // Start the stage first so the player is already inside the stage (never kicked back to menu during dialogue)
+  setWorld(st.world);
+  startGame();
+  storyMode = { active: true, stageId: st.id, killsAtStart: 0, bossSpawned: false, bossEntity: null, completed: false, score: 0 };
+  const showBanner = () => {
     banner = { text: st.title.toUpperCase(), sub: curLang === 'vi' ? `Mục tiêu: Tiêu diệt ${st.goalKills} quái` : `Objective: Defeat ${st.goalKills} demons`, life: 3 };
   };
   if (withPrologue) {
     storyProg.seenPrologue = true;
     saveStoryProg();
-    playStoryPrologue(begin);
+    playStoryPrologue(showBanner);
   } else {
-    begin();
+    showNeonDialogue([
+      { side: 'left', type: 'king_npc', speaker: 'HIGH KING', role: 'ROYALTY', accent: '#ffd54a',
+        en: `Stage ${st.world + 1}-${st.stageInWorld} (${WORLDS[st.world].name}): Defeat ${st.goalKills} demons${st.bossType ? ' and the realm boss' : ''} to advance!`,
+        vi: `Màn ${st.world + 1}-${st.stageInWorld} (${WORLDS[st.world].name}): Hãy tiêu diệt ${st.goalKills} quái${st.bossType ? ' và trùm vùng đất này' : ''} để tiến bước!` },
+      { side: 'left', type: 'player', speaker: playerName || 'GUARDIAN', role: CLASSES[selClass].name.toUpperCase(),
+        en: 'Understood! Moving out now!',
+        vi: 'Đã rõ! Xuất kích ngay!' }
+    ], showBanner, true);
   }
 }
 
@@ -7251,10 +7414,22 @@ function drawV79Entities(S2) {
     if (e.leechTarget && !e.leechTarget.dead) {
       const [px, py] = S2(e.leechTarget.x, e.leechTarget.y);
       const prog = Math.min(1, (e.leechT || 0) / 5.0);
+      // Anchored channeling ring around the stationary Soul Leecher
+      ctx.strokeStyle = prog > 0.7 ? 'rgba(255, 59, 92, 0.85)' : 'rgba(125, 249, 255, 0.75)';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.arc(ex, ey, e.r + 7 + Math.sin(clock * 12) * 2.5, 0, TAU); ctx.stroke();
+      // Soul drain beam
       ctx.strokeStyle = prog > 0.7 ? '#ff3b5c' : '#ff2ad4';
       ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = 14;
       ctx.lineWidth = 3 + prog * 3;
       ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(px, py); ctx.stroke();
+      // Soul wisps pulled from player to leecher
+      ctx.fillStyle = '#7df9ff';
+      for (let i = 0; i < 4; i++) {
+        const f = ((clock * 1.4 + i * 0.25) % 1);
+        const wx = px + (ex - px) * f, wy = py + (ey - py) * f;
+        ctx.beginPath(); ctx.arc(wx, wy, 3.2 * (1 - f * 0.4), 0, TAU); ctx.fill();
+      }
       ctx.shadowBlur = 0;
       const rem = Math.max(0, 5 - (e.leechT || 0));
       ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(px - 24, py - PR - 28, 48, 6);
@@ -7924,7 +8099,7 @@ const INTRO_VI = {
   hound: ['Chó Săn Địa Ngục', 'Săn mồi theo bầy 3 con. Di chuyển cực nhanh.'],
   warlock: ['Thuật Sĩ Hắc Ám', 'Đứng xa nguyền rủa mặt đất dưới chân bạn. Né trước khi nổ!'],
   titan: ['Người Khổng Lồ', 'Một ngọn núi biết đi. Dậm đất gây choáng xung quanh. Máu cực lớn.'],
-  leecher: ['Kẻ Hút Hồn', 'Đứng yên và nối tia hút hồn trong phạm vi 50% của Wisp. Phải thoát ra hoặc hạ nó trong 5 giây, không sẽ chết ngay!'],
+  leecher: ['Kẻ Hút Hồn', 'Di chuyển đuổi theo bạn, nhưng sẽ đứng yên khi đang nối tia hút hồn (phạm vi 50% của Wisp). Phải thoát ra hoặc hạ nó trong 5 giây, không sẽ chết ngay!'],
   herald: ['Sứ Giả Vực Thẳm', 'Đi cùng bầy quỷ và cường hóa máu, sát thương, tốc độ cho quỷ và trùm xung quanh!'],
   void_warden: ['Cai Ngục Hư Không', 'Kẻ canh gác cốt truyện bị vết nứt tha hóa.'],
   abyss_knight: ['Kỵ Sĩ Vực Thẳm', 'Đội tiên phong bọc giáp của Quỷ Vương.'],
